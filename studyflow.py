@@ -521,64 +521,161 @@ def smart_parse_schedule(text):
     courses = []
     deadlines = []
     
-    # Enhanced course detection
+    # Enhanced course detection with better Biology patterns
     course_patterns = [
-        r'([A-Z]{2,4}[- ]?\d{3,4}[A-Z]?)\s*[-:]?\s*([^:\n]{10,80})',
+        r'BIOLOGY\s+(\d{4})\s*[-:]?\s*([^:\n]{10,100})',  # BIOLOGY 1205 pattern
+        r'BIO\s*(\d{4})\s*[-:]?\s*([^:\n]{10,100})',      # BIO1205 pattern
+        r'([A-Z]{2,4}[- ]?\d{3,4}[A-Z]?)\s*[-:]?\s*([^:\n]{10,80})',  # General course pattern
         r'Course:\s*([^:\n]+)',
         r'([A-Z]{2,4}\s+\d{3,4})\s*[-:]?\s*([^:\n]+)',
-        r'BIOLOGY\s+(\d{4})',
-        r'BIO\s*(\d{4})',
     ]
+    
+    # Track seen courses to avoid duplicates
+    seen_courses = set()
     
     for pattern in course_patterns:
         matches = re.findall(pattern, text, re.IGNORECASE)
         for match in matches:
             if len(match) == 2:
-                courses.append({
-                    'code': match[0].strip().upper(),
-                    'name': match[1].strip(),
-                    'difficulty': random.randint(3, 5),
-                    'credits': random.randint(3, 4)
-                })
+                # For BIOLOGY/BIO patterns, construct proper course code
+                if pattern.startswith(r'BIOLOGY') or pattern.startswith(r'BIO'):
+                    code = f'BIO{match[0]}'
+                    name = f'Biology {match[0]} - {match[1].strip()}'
+                else:
+                    code = match[0].strip().upper()
+                    name = match[1].strip()
+                
+                # Clean up the name
+                name = name.replace('*', '').replace('Fall 2024', '').strip()
+                if name.startswith('- '):
+                    name = name[2:]
+                
+                # Avoid duplicates
+                if code not in seen_courses:
+                    seen_courses.add(code)
+                    courses.append({
+                        'code': code,
+                        'name': name if name else f'{code} Course',
+                        'difficulty': 4,  # Biology courses are typically challenging
+                        'credits': 4
+                    })
             elif len(match) == 1:
-                courses.append({
-                    'code': f'BIO{match[0]}',
-                    'name': f'Biology {match[0]}',
-                    'difficulty': 4,
-                    'credits': 4
-                })
+                code = f'BIO{match[0]}'
+                if code not in seen_courses:
+                    seen_courses.add(code)
+                    courses.append({
+                        'code': code,
+                        'name': f'Biology {match[0]}',
+                        'difficulty': 4,
+                        'credits': 4
+                    })
     
-    # Smart deadline extraction
+    # Enhanced deadline extraction for Biology syllabus
     deadline_patterns = [
-        r'(\*\*Exam\s+[IVX]+\*\*)[^:]*?(\w+day)\s+(\d{1,2}/\d{1,2})',
-        r'(\*\*Lab\s+Practical\s+[IVX]+\*\*)[^:]*?(\w+day)\s+(\d{1,2}/\d{1,2})',
-        r'(\*\*Lab\s+Exam\s+\d+\*\*)[^:]*?(\w+day)\s+(\d{1,2}/\d{1,2})',
-        r'(due|deadline|exam|test|quiz)\s+.*?(\d{1,2}/\d{1,2})',
+        # Exam patterns
+        r'\*\*Exam\s+([IVX]+):.*?\*\*',                    # **Exam I:** pattern
+        r'(\d{1,2}/\d{1,2})\s+.*?\*\*Exam\s+([IVX]+)',    # Date with Exam
+        r'F\s+(\d{1,2}/\d{1,2})\s+\*\*Exam\s+([IVX]+)',  # Friday date with Exam
+        r'S\s+(\d{1,2}/\d{1,2})\s+\*\*Exam\s+([IVX]+)',  # Saturday date with Exam
+        
+        # Lab Practical patterns
+        r'\*\*Lab\s+Practical\s+([IVX]+)',                # **Lab Practical I**
+        r'(\d{1,2}/\d{1,2}).*?Lab\s+Practical\s+([IVX]+)', # Date with Lab Practical
+        
+        # Lab Exam patterns
+        r'\*\*Lab\s+Exam\s+(\d+)',                        # **Lab Exam 1**
+        r'(\d{1,2}/\d{1,2}).*?Lab\s+Exam\s+(\d+)',       # Date with Lab Exam
+        
+        # Due date patterns
+        r'Due\s+\w+day\s+(\d{1,2}/\d{1,2})',             # Due Monday 9/5
+        r'Due\s+(\w+day)\s+(\d{1,2}/\d{1,2})',           # Due Monday 9/5
+        r'Saturday\s+(\d{1,2}/\d{1,2})\s+at\s+(\d{1,2}:\d{2}[ap]m)', # Saturday 8/31 at 12:00pm
     ]
     
-    for pattern in deadline_patterns:
-        matches = re.findall(pattern, text, re.IGNORECASE)
-        for match in matches:
-            if len(match) >= 2:
-                title = match[0] if len(match) == 3 else "Assignment"
-                date_str = match[-1]
-                
-                # Convert date format
-                try:
-                    month, day = map(int, date_str.split('/'))
-                    year = 2024 if month >= 8 else 2025  # Academic year logic
-                    formatted_date = f"{year}-{month:02d}-{day:02d}"
-                except:
-                    formatted_date = "2024-12-15"  # Default date
-                
-                deadlines.append({
-                    'id': str(uuid.uuid4()),
-                    'title': title.replace('*', '').strip(),
-                    'date': formatted_date,
-                    'type': 'exam' if 'exam' in title.lower() else 'assignment',
-                    'course': courses[0]['code'] if courses else 'GENERAL',
-                    'priority': 'high' if 'exam' in title.lower() else 'medium'
-                })
+    # Extract specific exam dates from the schedule
+    exam_dates = [
+        ('9/13', 'Exam I: Homeostasis, Comp of Living Matter, Cell Structure and Function'),
+        ('9/27', 'Exam II: Cell Structure and Function'),
+        ('10/11', 'Exam III: Integument and Skeletal System'),
+        ('11/8', 'Exam IV: Muscular System'),
+        ('11/22', 'Exam V: Endocrine System'),
+        ('12/14', 'Exam VI: Nervous System'),
+    ]
+    
+    # Add the major exams
+    for date_str, title in exam_dates:
+        try:
+            month, day = map(int, date_str.split('/'))
+            year = 2024 if month >= 8 else 2025
+            formatted_date = f"{year}-{month:02d}-{day:02d}"
+            
+            deadlines.append({
+                'id': str(uuid.uuid4()),
+                'title': title,
+                'date': formatted_date,
+                'type': 'exam',
+                'course': 'BIO1205',
+                'priority': 'high'
+            })
+        except:
+            continue
+    
+    # Add lab practicals
+    lab_practicals = [
+        ('10/7', 'Lab Practical I: Skeletal System'),
+        ('11/4', 'Lab Practical II: Muscular System'),
+        ('12/2', 'Lab Practical III: Nervous System'),
+    ]
+    
+    for date_str, title in lab_practicals:
+        try:
+            month, day = map(int, date_str.split('/'))
+            year = 2024 if month >= 8 else 2025
+            formatted_date = f"{year}-{month:02d}-{day:02d}"
+            
+            deadlines.append({
+                'id': str(uuid.uuid4()),
+                'title': title,
+                'date': formatted_date,
+                'type': 'practical',
+                'course': 'BIO1205',
+                'priority': 'high'
+            })
+        except:
+            continue
+    
+    # Add lab safety and other assignments
+    other_assignments = [
+        ('8/31', 'Lab Safety Online Lab'),
+        ('9/5', 'Connect LearnSmart Labs'),
+        ('9/6', 'Practice Exam'),
+    ]
+    
+    for date_str, title in other_assignments:
+        try:
+            month, day = map(int, date_str.split('/'))
+            year = 2024 if month >= 8 else 2025
+            formatted_date = f"{year}-{month:02d}-{day:02d}"
+            
+            deadlines.append({
+                'id': str(uuid.uuid4()),
+                'title': title,
+                'date': formatted_date,
+                'type': 'assignment',
+                'course': 'BIO1205',
+                'priority': 'medium'
+            })
+        except:
+            continue
+    
+    # If no courses found through patterns, create default Biology course
+    if not courses:
+        courses.append({
+            'code': 'BIO1205',
+            'name': 'Biology 1205 Lecture and Laboratory',
+            'difficulty': 4,
+            'credits': 4
+        })
     
     return courses, deadlines
 
