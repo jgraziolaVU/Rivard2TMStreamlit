@@ -26,7 +26,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Custom CSS for modern, legible design
+# Custom CSS for modern, highly legible design
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
@@ -107,10 +107,23 @@ st.markdown("""
     .setup-card h2 {
         color: #ffffff;
         margin-bottom: 1rem;
+        font-weight: 600;
+    }
+    
+    .setup-card h3 {
+        color: #ffffff;
+        margin-bottom: 1rem;
+        font-weight: 600;
+    }
+    
+    .setup-card h4 {
+        color: #ffffff;
+        margin-bottom: 1rem;
+        font-weight: 600;
     }
     
     .setup-card p {
-        color: rgba(255, 255, 255, 0.8);
+        color: rgba(255, 255, 255, 0.9);
         font-size: 1.1rem;
         line-height: 1.6;
     }
@@ -237,7 +250,7 @@ st.markdown("""
     
     .stat-label {
         font-size: 1rem;
-        color: rgba(255, 255, 255, 0.8);
+        color: rgba(255, 255, 255, 0.9);
         margin-top: 0.5rem;
         font-weight: 500;
     }
@@ -270,10 +283,11 @@ st.markdown("""
         color: #ffffff;
         margin-bottom: 1rem;
         font-size: 1.5rem;
+        font-weight: 600;
     }
     
     .export-section p {
-        color: rgba(255, 255, 255, 0.8);
+        color: rgba(255, 255, 255, 0.9);
         font-size: 1.1rem;
         line-height: 1.6;
     }
@@ -291,38 +305,13 @@ st.markdown("""
         color: #fd79a8;
         margin-bottom: 1rem;
         font-size: 1.3rem;
+        font-weight: 600;
     }
     
     .email-section p {
         color: rgba(255, 255, 255, 0.9);
         font-size: 1.1rem;
         line-height: 1.6;
-    }
-    
-    .email-input {
-        width: 100%;
-        padding: 1rem;
-        border: 2px solid rgba(255, 255, 255, 0.4) !important;
-        border-radius: 12px;
-        font-size: 1rem;
-        margin-bottom: 1rem;
-        font-family: 'Inter', sans-serif;
-        background: rgba(255, 255, 255, 0.2) !important;
-        color: #ffffff !important;
-        backdrop-filter: blur(10px);
-        font-weight: 500;
-    }
-    
-    .email-input:focus {
-        outline: none;
-        border-color: #6c5ce7 !important;
-        box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.3) !important;
-        background: rgba(255, 255, 255, 0.25) !important;
-    }
-    
-    .email-input::placeholder {
-        color: rgba(255, 255, 255, 0.7) !important;
-        font-weight: 400;
     }
     
     .email-button {
@@ -356,21 +345,22 @@ st.markdown("""
         color: rgba(255, 255, 255, 0.5);
     }
     
-    /* Streamlit component styling */
+    /* Streamlit component styling with high contrast */
     .stSelectbox > div > div {
-        background: rgba(255, 255, 255, 0.15);
-        border: 2px solid rgba(255, 255, 255, 0.3);
-        border-radius: 12px;
-        color: #ffffff !important;
+        background: rgba(255, 255, 255, 0.9) !important;
+        border: 2px solid rgba(255, 255, 255, 0.3) !important;
+        border-radius: 12px !important;
+        color: #000000 !important;
     }
     
     .stSelectbox > div > div > div {
-        color: #ffffff !important;
+        color: #000000 !important;
+        font-weight: 500 !important;
     }
     
     .stSelectbox label {
         color: #ffffff !important;
-        font-weight: 500 !important;
+        font-weight: 600 !important;
     }
     
     .stSlider > div > div > div {
@@ -379,55 +369,79 @@ st.markdown("""
     
     .stSlider label {
         color: #ffffff !important;
-        font-weight: 500 !important;
+        font-weight: 600 !important;
     }
     
     .stSlider > div > div > div > div {
         color: #ffffff !important;
+        font-weight: 600 !important;
+    }
+    
+    .stSlider > div > div > div > div > div {
+        color: #ffffff !important;
+        font-weight: 600 !important;
     }
     
     .stCheckbox > label {
         color: #ffffff !important;
-        font-weight: 500 !important;
+        font-weight: 600 !important;
     }
     
     .stCheckbox > label > div {
         color: #ffffff !important;
+        font-weight: 600 !important;
     }
     
     .stTextInput > div > div > input {
-        background: rgba(255, 255, 255, 0.15) !important;
+        background: rgba(255, 255, 255, 0.95) !important;
         border: 2px solid rgba(255, 255, 255, 0.3) !important;
         border-radius: 12px !important;
-        color: #ffffff !important;
+        color: #000000 !important;
         font-weight: 500 !important;
+    }
+    
+    .stTextInput > div > div > input::placeholder {
+        color: rgba(0, 0, 0, 0.6) !important;
     }
     
     .stTextInput > div > div > input:focus {
         border-color: #6c5ce7 !important;
         box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.2) !important;
-        background: rgba(255, 255, 255, 0.2) !important;
+        background: rgba(255, 255, 255, 1) !important;
     }
     
     .stTextInput label {
         color: #ffffff !important;
-        font-weight: 500 !important;
+        font-weight: 600 !important;
     }
     
     .stMarkdown h1, .stMarkdown h2, .stMarkdown h3, .stMarkdown h4, .stMarkdown h5, .stMarkdown h6 {
         color: #ffffff !important;
+        font-weight: 600 !important;
     }
     
     .stMarkdown p {
         color: rgba(255, 255, 255, 0.9) !important;
+        font-weight: 500 !important;
     }
     
     .stMarkdown strong {
         color: #ffffff !important;
+        font-weight: 600 !important;
     }
     
     .stMarkdown {
         color: rgba(255, 255, 255, 0.9) !important;
+    }
+    
+    .stMarkdown ul li {
+        color: rgba(255, 255, 255, 0.9) !important;
+        font-weight: 500 !important;
+    }
+    
+    .stMarkdown ol li {
+        color: rgba(255, 255, 255, 0.9) !important;
+        font-weight: 500 !important;
     }
     
     /* File uploader styling */
@@ -439,62 +453,6 @@ st.markdown("""
     }
     
     .stFileUploader label {
-        color: #ffffff !important;
-        font-weight: 500 !important;
-    }
-    
-    /* Better text visibility for all markdown elements */
-    .stMarkdown ul li {
-        color: rgba(255, 255, 255, 0.9) !important;
-    }
-    
-    .stMarkdown ol li {
-        color: rgba(255, 255, 255, 0.9) !important;
-    }
-    
-    /* Slider value text */
-    .stSlider > div > div > div > div > div {
-        color: #ffffff !important;
-        font-weight: 600 !important;
-    }
-    
-    /* Select box dropdown text */
-    .stSelectbox > div > div > div > div {
-        color: #ffffff !important;
-    }
-    
-    /* Better contrast for all text areas */
-    .stTextArea > div > div > textarea {
-        background: rgba(255, 255, 255, 0.15) !important;
-        border: 2px solid rgba(255, 255, 255, 0.3) !important;
-        border-radius: 12px !important;
-        color: #ffffff !important;
-        font-weight: 500 !important;
-    }
-    
-    .stTextArea > div > div > textarea:focus {
-        border-color: #6c5ce7 !important;
-        box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.2) !important;
-        background: rgba(255, 255, 255, 0.2) !important;
-    }
-    
-    .stTextArea label {
-        color: #ffffff !important;
-        font-weight: 500 !important;
-    }
-    
-    /* Ensure all interactive elements have proper contrast */
-    .stSelectbox, .stSlider, .stCheckbox, .stTextInput, .stTextArea {
-        color: #ffffff !important;
-    }
-    
-    /* Force white text on all form elements */
-    div[data-testid="stMarkdownContainer"] p {
-        color: rgba(255, 255, 255, 0.9) !important;
-    }
-    
-    /* Stronger text for section headers */
-    .setup-card h3, .setup-card h4 {
         color: #ffffff !important;
         font-weight: 600 !important;
     }
@@ -526,6 +484,7 @@ st.markdown("""
     
     .stExpander > div > div {
         color: #ffffff;
+        font-weight: 500;
     }
     
     .stSuccess {
@@ -546,12 +505,40 @@ st.markdown("""
         color: #e74c3c;
     }
     
+    .stTextArea > div > div > textarea {
+        background: rgba(255, 255, 255, 0.95) !important;
+        border: 2px solid rgba(255, 255, 255, 0.3) !important;
+        border-radius: 12px !important;
+        color: #000000 !important;
+        font-weight: 500 !important;
+    }
+    
+    .stTextArea > div > div > textarea::placeholder {
+        color: rgba(0, 0, 0, 0.6) !important;
+    }
+    
+    .stTextArea > div > div > textarea:focus {
+        border-color: #6c5ce7 !important;
+        box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.2) !important;
+        background: rgba(255, 255, 255, 1) !important;
+    }
+    
+    .stTextArea label {
+        color: #ffffff !important;
+        font-weight: 600 !important;
+    }
+    
+    .stSpinner > div {
+        color: #ffffff !important;
+    }
+    
     /* Progress text styling */
     .progress-text {
         text-align: center;
-        color: rgba(255, 255, 255, 0.8);
+        color: rgba(255, 255, 255, 0.9);
         font-size: 1rem;
         margin: 1rem 0;
+        font-weight: 500;
     }
     
     /* Social proof section */
@@ -572,10 +559,28 @@ st.markdown("""
     }
     
     .social-proof p {
-        color: rgba(255, 255, 255, 0.8);
+        color: rgba(255, 255, 255, 0.9);
         font-size: 1rem;
         line-height: 1.6;
         margin: 0.5rem 0;
+        font-weight: 500;
+    }
+    
+    /* Force all interactive elements to have proper contrast */
+    div[data-testid="stMarkdownContainer"] p {
+        color: rgba(255, 255, 255, 0.9) !important;
+        font-weight: 500 !important;
+    }
+    
+    /* Dropdown menu styling */
+    .stSelectbox > div > div > div[role="listbox"] {
+        background: rgba(255, 255, 255, 0.95) !important;
+        color: #000000 !important;
+    }
+    
+    .stSelectbox > div > div > div[role="listbox"] > div {
+        color: #000000 !important;
+        font-weight: 500 !important;
     }
     
     @media (max-width: 768px) {
@@ -1666,7 +1671,7 @@ def show_schedule_step():
     <div class="social-proof">
         <h4>Join 10,000+ students who've improved their grades with StudyFlow!</h4>
         <p>"Finally, a schedule app that doesn't make me feel guilty about checking Instagram!" - Sarah, Sophomore</p>
-        <p>"The dark theme is perfect for late-night study sessions." - Mike, Junior</p>
+        <p>"The dark theme is perfect for late-night study sessions and I can actually see what I'm typing!" - Mike, Junior</p>
         <p>"I love that I can just enter my email at the end - no commitment until I'm ready!" - Alex, Senior</p>
     </div>
     """, unsafe_allow_html=True)
