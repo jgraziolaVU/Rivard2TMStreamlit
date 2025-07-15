@@ -1,0 +1,32 @@
+# Core Streamlit and web framework
+streamlit>=1.28.0
+pandas>=1.5.0
+
+# File processing libraries
+PyPDF2>=3.0.1
+python-docx>=0.8.11
+
+# PDF generation
+reportlab>=3.6.0
+
+# Date and time handling
+python-dateutil>=2.8.2
+
+# Additional utility libraries
+uuid
+
+# Optional: Enhanced file processing (uncomment if needed)
+# textract>=1.6.5
+# pdfplumber>=0.9.0
+# openpyxl>=3.1.0
+
+# Optional: Better date parsing (uncomment if needed)
+# dateparser>=1.1.8
+
+# Optional: Enhanced text processing (uncomment if needed)
+# nltk>=3.8
+# spacy>=3.4.0
+
+# Development and deployment
+# gunicorn>=21.2.0  # For production deployment
+# python-dotenv>=1.0.0  # For environment variables
