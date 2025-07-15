@@ -122,12 +122,15 @@ def parse_courses_and_deadlines(text):
                 })
     
     # Deadline extraction with multiple date formats
-    deadline_keywords = ['due', 'deadline', 'exam', 'test', 'assignment', 'project', 'quiz', 'presentation', 'final', 'midterm']
+    deadline_keywords = ['due', 'deadline', 'exam', 'test', 'assignment', 'project', 'quiz', 'presentation', 'final', 'midterm', 'practical']
     date_patterns = [
-        r'\d{1,2}/\d{1,2}/\d{2,4}',
-        r'\d{1,2}-\d{1,2}-\d{2,4}',
-        r'\b\w+ \d{1,2}, \d{4}\b',
-        r'\b\d{1,2} \w+ \d{4}\b'
+        r'\d{1,2}/\d{1,2}/\d{2,4}',  # MM/DD/YYYY
+        r'\d{1,2}-\d{1,2}-\d{2,4}',  # MM-DD-YYYY
+        r'\b\w+ \d{1,2}, \d{4}\b',   # Month DD, YYYY
+        r'\b\d{1,2} \w+ \d{4}\b',    # DD Month YYYY
+        r'\d{1,2}/\d{1,2}',          # MM/DD (add current year)
+        r'\b\w+ \d{1,2}\b',          # Month DD (add current year)
+        r'\b(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)\s+\d{1,2}/\d{1,2}',  # Day MM/DD
     ]
     
     sentences = re.split(r'[.!?\n]', text)
