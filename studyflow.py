@@ -300,20 +300,19 @@ st.markdown("""
         font-weight: 600;
     }
     
-    /* COMPLETELY UNIFORM BUTTON STYLING */
+    /* COMPLETELY UNIFORM BUTTON STYLING - ALL BUTTONS IDENTICAL SHAPE */
     
-    /* Primary buttons (default Streamlit buttons) */
-    .stButton > button {
-        background: linear-gradient(135deg, #6c5ce7, #a29bfe) !important;
-        color: white !important;
+    /* Universal button base styling */
+    .stButton > button,
+    .stDownloadButton > button,
+    .email-button {
         border: none !important;
-        border-radius: 12px !important;
+        border-radius: 50px !important;
         padding: 0.75rem 1.5rem !important;
         font-weight: 600 !important;
         font-size: 1rem !important;
         font-family: 'Inter', sans-serif !important;
         transition: all 0.3s ease !important;
-        box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3) !important;
         text-transform: none !important;
         letter-spacing: 0.5px !important;
         width: 100% !important;
@@ -325,6 +324,13 @@ st.markdown("""
         white-space: nowrap !important;
         overflow: hidden !important;
         text-overflow: ellipsis !important;
+        color: white !important;
+    }
+    
+    /* Primary buttons (default Streamlit buttons) */
+    .stButton > button {
+        background: linear-gradient(135deg, #6c5ce7, #a29bfe) !important;
+        box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3) !important;
     }
     
     .stButton > button:hover {
@@ -351,29 +357,10 @@ st.markdown("""
         box-shadow: none !important;
     }
     
-    /* Download buttons - green variant */
+    /* Download buttons - green variant with SAME SHAPE */
     .stDownloadButton > button {
         background: linear-gradient(135deg, #00b894, #00cec9) !important;
-        color: white !important;
-        border: none !important;
-        border-radius: 12px !important;
-        padding: 0.75rem 1.5rem !important;
-        font-weight: 600 !important;
-        font-size: 1rem !important;
-        font-family: 'Inter', sans-serif !important;
-        transition: all 0.3s ease !important;
         box-shadow: 0 4px 15px rgba(0, 184, 148, 0.3) !important;
-        text-transform: none !important;
-        letter-spacing: 0.5px !important;
-        width: 100% !important;
-        min-height: 48px !important;
-        cursor: pointer !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        white-space: nowrap !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
     }
     
     .stDownloadButton > button:hover {
@@ -392,30 +379,11 @@ st.markdown("""
         box-shadow: 0 0 0 3px rgba(0, 184, 148, 0.3) !important;
     }
     
-    /* Custom email button */
+    /* Custom email button - pink variant with SAME SHAPE */
     .email-button {
         background: linear-gradient(135deg, #fd79a8, #fdcb6e) !important;
-        color: white !important;
-        border: none !important;
-        border-radius: 12px !important;
-        padding: 0.75rem 1.5rem !important;
-        font-weight: 600 !important;
-        font-size: 1rem !important;
-        font-family: 'Inter', sans-serif !important;
-        transition: all 0.3s ease !important;
         box-shadow: 0 4px 15px rgba(253, 121, 168, 0.3) !important;
-        text-transform: none !important;
-        letter-spacing: 0.5px !important;
-        width: 100% !important;
-        min-height: 48px !important;
-        cursor: pointer !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
         text-decoration: none !important;
-        white-space: nowrap !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
     }
     
     .email-button:hover {
@@ -435,14 +403,15 @@ st.markdown("""
         box-shadow: 0 0 0 3px rgba(253, 121, 168, 0.3) !important;
     }
     
-    /* Form inputs styling */
+    /* Form inputs styling - matching button border-radius */
     .stSelectbox > div > div {
         background: rgba(255, 255, 255, 0.9) !important;
         border: 2px solid rgba(255, 255, 255, 0.3) !important;
-        border-radius: 12px !important;
+        border-radius: 50px !important;
         color: #000000 !important;
         font-family: 'Inter', sans-serif !important;
         font-weight: 500 !important;
+        padding: 0.75rem 1rem !important;
     }
     
     .stSelectbox > div > div:focus-within {
@@ -459,7 +428,7 @@ st.markdown("""
     .stTextInput > div > div > input {
         background: rgba(255, 255, 255, 0.95) !important;
         border: 2px solid rgba(255, 255, 255, 0.3) !important;
-        border-radius: 12px !important;
+        border-radius: 50px !important;
         color: #000000 !important;
         font-weight: 500 !important;
         font-family: 'Inter', sans-serif !important;
@@ -482,7 +451,7 @@ st.markdown("""
     .stTextArea > div > div > textarea {
         background: rgba(255, 255, 255, 0.95) !important;
         border: 2px solid rgba(255, 255, 255, 0.3) !important;
-        border-radius: 12px !important;
+        border-radius: 20px !important;
         color: #000000 !important;
         font-weight: 500 !important;
         font-family: 'Inter', sans-serif !important;
@@ -517,7 +486,7 @@ st.markdown("""
     .stFileUploader > div > div {
         background: rgba(255, 255, 255, 0.1) !important;
         border: 2px dashed rgba(255, 255, 255, 0.3) !important;
-        border-radius: 12px !important;
+        border-radius: 20px !important;
         color: #ffffff !important;
         font-family: 'Inter', sans-serif !important;
         font-weight: 500 !important;
@@ -534,7 +503,7 @@ st.markdown("""
     .stExpander {
         background: rgba(255, 255, 255, 0.06) !important;
         border: 1px solid rgba(255, 255, 255, 0.15) !important;
-        border-radius: 12px !important;
+        border-radius: 16px !important;
         margin: 0.5rem 0 !important;
         font-family: 'Inter', sans-serif !important;
     }
@@ -612,6 +581,7 @@ st.markdown("""
         .stButton > button, .stDownloadButton > button, .email-button {
             font-size: 0.9rem !important;
             padding: 0.65rem 1.25rem !important;
+            border-radius: 40px !important;
         }
     }
 </style>
