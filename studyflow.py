@@ -720,8 +720,69 @@ END:VEVENT
         ics_content += "END:VCALENDAR"
         return ics_content
     
+    def generate_pdf_schedule():
+        """Generate PDF schedule"""
+        buffer = BytesIO()
+        doc = SimpleDocTemplate(buffer, pagesize=letter)
+        styles = getSampleStyleSheet()
+        
+        # Custom styles
+        title_style = ParagraphStyle(
+            'CustomTitle',
+            parent=styles['Heading1'],
+            fontSize=24,
+            spaceAfter=30,
+            textColor=colors.darkblue
+        )
+        
+        story = []
+        
+        # Title
+        story.append(Paragraph("📚 StudyFlow - Your Complete Study Schedule", title_style))
+        story.append(Spacer(1, 12))
+        
+        # Preferences summary
+        pref_text = f"""
+        <b>Schedule Type:</b> {selected['type'].title()} - {selected['description']}<br/>
+        <b>Email:</b> {email}<br/>
+        <b>Wake Up:</b> {wakeup}:00 AM<br/>
+        <b>Sleep:</b> {sleep}:00 PM<br/>
+        <b>Generated:</b> {datetime.now().strftime('%B %d, %Y at %I:%M %p')}
+        """
+        story.append(Paragraph(pref_text, styles['Normal']))
+        story.append(Spacer(1, 20))
+        
+        # Courses
+        story.append(Paragraph("📚 Your Courses", styles['Heading2']))
+        for course in st.session_state.courses:
+            course_text = f"• {course['code']} - {course['name']} (Difficulty: {course['difficulty']}/5, Credits: {course['credits']})"
+            story.append(Paragraph(course_text, styles['Normal']))
+        story.append(Spacer(1, 20))
+        
+        # Sample schedule
+        story.append(Paragraph("📅 Sample Week Schedule", styles['Heading2']))
+        
+        sample_dates = list(selected['schedule'].keys())[:7]
+        for date_str in sample_dates:
+            day_schedule = selected['schedule'][date_str]
+            date_obj = datetime.strptime(date_str, '%Y-%m-%d')
+            day_name = date_obj.strftime('%A, %B %d')
+            
+            story.append(Paragraph(day_name, styles['Heading3']))
+            
+            for activity in day_schedule:
+                duration = f" ({activity.get('duration', 60)} min)" if 'duration' in activity else ""
+                activity_text = f"• {activity['time']} - {activity['activity']}{duration}"
+                story.append(Paragraph(activity_text, styles['Normal']))
+            
+            story.append(Spacer(1, 12))
+        
+        doc.build(story)
+        buffer.seek(0)
+        return buffer
+    
     # Export buttons
-    col1, col2, col3, col4 = st.columns(4)
+    col1, col2, col3 = st.columns(3)
     
     with col1:
         if st.button("📧 Email Schedule", type="primary"):
@@ -749,9 +810,27 @@ END:VEVENT
             mime="text/calendar"
         )
     
-    with col4:
-        if st.button("🔗 Share Schedule"):
-            st.info("🔗 Sharing feature would generate a unique URL in production")
+    # PDF download in separate row
+    st.subheader("📄 Additional Export Options")
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        pdf_buffer = generate_pdf_schedule()
+        st.download_button(
+            label="📄 Download PDF Report",
+            data=pdf_buffer,
+            file_name=f"StudyFlow_Schedule_{datetime.now().strftime('%Y%m%d')}.pdf",
+            mime="application/pdf"
+        )
+    
+    with col2:
+        schedule_text = create_email_content(selected)[1]
+        st.download_button(
+            label="📋 Download Text Summary",
+            data=schedule_text,
+            file_name=f"StudyFlow_Summary_{datetime.now().strftime('%Y%m%d')}.txt",
+            mime="text/plain"
+        )
     
     # Show final summary
     st.success(f"""
