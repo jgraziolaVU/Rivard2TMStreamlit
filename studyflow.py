@@ -1135,7 +1135,7 @@ def generate_pdf_schedule(schedule_data, user_data):
                     ('TEXTCOLOR', (0, 0), (-1, -1), colors.HexColor('#333333')),
                     ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
                     ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
-                    ('FONTSIZE', (0, 0, (-1, -1), 9),
+                    ('FONTSIZE', (0, 0), (-1, -1), 9),
                     ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
                     ('TOPPADDING', (0, 0), (-1, -1), 6),
                     ('LEFTPADDING', (0, 0), (-1, -1), 12),
