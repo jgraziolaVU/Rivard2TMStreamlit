@@ -314,6 +314,31 @@ st.markdown("""
         line-height: 1.6;
     }
     
+    .email-instructions {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin: 1rem 0;
+        border-left: 4px solid #fdcb6e;
+    }
+    
+    .email-instructions h5 {
+        color: #fdcb6e;
+        margin-bottom: 0.5rem;
+        font-size: 1.1rem;
+        font-weight: 600;
+    }
+    
+    .email-instructions ol {
+        color: rgba(255, 255, 255, 0.9);
+        padding-left: 1.5rem;
+    }
+    
+    .email-instructions li {
+        margin: 0.5rem 0;
+        font-weight: 500;
+    }
+    
     .email-button {
         background: linear-gradient(135deg, #fd79a8, #fdcb6e);
         color: white;
@@ -343,6 +368,27 @@ st.markdown("""
         transform: none;
         box-shadow: none;
         color: rgba(255, 255, 255, 0.5);
+    }
+    
+    .download-first {
+        background: rgba(255, 203, 110, 0.1);
+        border: 2px solid rgba(255, 203, 110, 0.3);
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin: 1rem 0;
+    }
+    
+    .download-first h5 {
+        color: #fdcb6e;
+        margin-bottom: 0.5rem;
+        font-size: 1.1rem;
+        font-weight: 600;
+    }
+    
+    .download-first p {
+        color: rgba(255, 255, 255, 0.9);
+        margin: 0.5rem 0;
+        font-weight: 500;
     }
     
     /* Streamlit component styling with high contrast */
@@ -617,6 +663,10 @@ if 'schedule_ready' not in st.session_state:
     st.session_state.schedule_ready = False
 if 'final_schedule' not in st.session_state:
     st.session_state.final_schedule = None
+if 'pdf_generated' not in st.session_state:
+    st.session_state.pdf_generated = False
+if 'pdf_data' not in st.session_state:
+    st.session_state.pdf_data = None
 
 def extract_text_from_file(file):
     """Extract text from uploaded file"""
@@ -717,28 +767,6 @@ def smart_parse_schedule(text):
                         })
     
     # Enhanced deadline extraction for Biology syllabus
-    deadline_patterns = [
-        # Exam patterns
-        r'\*\*Exam\s+([IVX]+):.*?\*\*',                    # **Exam I:** pattern
-        r'(\d{1,2}/\d{1,2})\s+.*?\*\*Exam\s+([IVX]+)',    # Date with Exam
-        r'F\s+(\d{1,2}/\d{1,2})\s+\*\*Exam\s+([IVX]+)',  # Friday date with Exam
-        r'S\s+(\d{1,2}/\d{1,2})\s+\*\*Exam\s+([IVX]+)',  # Saturday date with Exam
-        
-        # Lab Practical patterns
-        r'\*\*Lab\s+Practical\s+([IVX]+)',                # **Lab Practical I**
-        r'(\d{1,2}/\d{1,2}).*?Lab\s+Practical\s+([IVX]+)', # Date with Lab Practical
-        
-        # Lab Exam patterns
-        r'\*\*Lab\s+Exam\s+(\d+)',                        # **Lab Exam 1**
-        r'(\d{1,2}/\d{1,2}).*?Lab\s+Exam\s+(\d+)',       # Date with Lab Exam
-        
-        # Due date patterns
-        r'Due\s+\w+day\s+(\d{1,2}/\d{1,2})',             # Due Monday 9/5
-        r'Due\s+(\w+day)\s+(\d{1,2}/\d{1,2})',           # Due Monday 9/5
-        r'Saturday\s+(\d{1,2}/\d{1,2})\s+at\s+(\d{1,2}:\d{2}[ap]m)', # Saturday 8/31 at 12:00pm
-    ]
-    
-    # Extract specific exam dates from the schedule
     exam_dates = [
         ('9/13', 'Exam I: Homeostasis, Comp of Living Matter, Cell Structure and Function'),
         ('9/27', 'Exam II: Cell Structure and Function'),
@@ -1222,16 +1250,16 @@ END:VEVENT
     ics_content += "END:VCALENDAR"
     return ics_content
 
-def create_email_content(schedule_data, user_data):
-    """Create email content"""
+def create_email_content_with_attachment_instructions(schedule_data, user_data):
+    """Create email content with PDF attachment instructions"""
     courses = user_data.get('courses', [])
     deadlines = user_data.get('deadlines', [])
     
-    subject = "Your StudyFlow Schedule is Ready! ⚡"
+    subject = "Your StudyFlow Schedule is Ready! ⚡ (PDF Attached)"
     
     body = f"""Hey there! 👋
 
-Your personalized StudyFlow schedule is ready and it's going to change your college game! 🎯
+Your personalized StudyFlow schedule is ready! I've attached the PDF for easy reference.
 
 📊 YOUR SCHEDULE STATS:
 • {len(courses)} courses tracked
@@ -1277,6 +1305,10 @@ Your personalized StudyFlow schedule is ready and it's going to change your coll
     
     body += f"""
 
+📎 ATTACHED FILES:
+• StudyFlow_Schedule.pdf - Your complete schedule for printing and reference
+• StudyFlow_Calendar.ics - Import this into your phone's calendar app
+
 🎯 WHY THIS SCHEDULE WORKS:
 ✅ Realistic {user_data.get('attention_span', 25)}-minute study blocks
 ✅ Built-in social media breaks (because we're human!)
@@ -1285,13 +1317,14 @@ Your personalized StudyFlow schedule is ready and it's going to change your coll
 ✅ Accounts for procrastination (we get it!)
 
 💡 PRO TIPS:
+• Print the PDF and put it on your dorm wall
+• Import the calendar file to your phone for notifications
 • Use your phone breaks wisely - set timers!
 • Study groups are great for accountability
-• Don't stress about being perfect - this schedule has buffer time built in
 • Your evening social time is protected - balance is key!
 
 📱 NEXT STEPS:
-1. Download the PDF for offline reference
+1. Print the attached PDF for offline reference
 2. Import the calendar file to your phone
 3. Start with just ONE study block today
 4. Adjust as needed - this is YOUR schedule!
@@ -1302,6 +1335,9 @@ Generated by StudyFlow - Built for Real College Students
 StudyFlow.app
 
 P.S. Share this with your friends - they need better schedules too! 📤
+
+---
+REMINDER: Don't forget to manually attach the PDF file before sending!
 """
     
     return subject, body
@@ -1460,7 +1496,7 @@ def show_preferences_step():
             st.rerun()
 
 def show_schedule_step():
-    """Step 3: Beautiful schedule display with email input in export section"""
+    """Step 3: Beautiful schedule display with enhanced email functionality"""
     st.markdown("""
     <div class="setup-card">
         <h2><span class="step-number">3</span>Your Personalized Schedule</h2>
@@ -1537,19 +1573,21 @@ def show_schedule_step():
     st.markdown("""
     <div class="export-section">
         <h3>🚀 Export Your Schedule</h3>
-        <p>Get your schedule in your preferred format - PDF for printing, Calendar for your phone, or Email for easy sharing!</p>
+        <p>Get your schedule in your preferred format - PDF for printing, Calendar for your phone, or Email with attachments!</p>
     </div>
     """, unsafe_allow_html=True)
     
     # Create export files
     if st.session_state.final_schedule and st.session_state.user_data:
         
-        # Generate PDF
+        # Generate PDF and ICS
         pdf_buffer = generate_pdf_schedule(st.session_state.final_schedule, st.session_state.user_data)
         pdf_data = pdf_buffer.getvalue()
-        
-        # Generate ICS
         ics_content = generate_ics_calendar(st.session_state.final_schedule, st.session_state.user_data)
+        
+        # Store PDF data in session state for email workflow
+        st.session_state.pdf_data = pdf_data
+        st.session_state.pdf_generated = True
         
         # Export buttons row 1: PDF and Calendar
         col1, col2 = st.columns(2)
@@ -1574,37 +1612,63 @@ def show_schedule_step():
                 use_container_width=True
             )
         
-        # Email section with input
+        # Enhanced email section with attachment workflow
         st.markdown("""
         <div class="email-section">
-            <h4>📧 Email Your Schedule</h4>
-            <p>Enter your email below to send your complete schedule with tips and previews!</p>
+            <h4>📧 Email Your Schedule with PDF Attachment</h4>
+            <p>We'll generate your email with the PDF ready to attach - follow the simple steps below!</p>
         </div>
         """, unsafe_allow_html=True)
         
-        # Email input and send button
+        # Email input
         email_input = st.text_input(
             "Email Address",
             placeholder="your.email@college.edu",
-            help="We'll create a ready-to-send email with your complete schedule",
+            help="Enter your email to create a ready-to-send message with attachment instructions",
             label_visibility="collapsed"
         )
         
-        if st.button("📧 Send Schedule to Email", type="primary", use_container_width=True, disabled=not email_input):
+        if st.button("📧 Create Email with PDF Instructions", type="primary", use_container_width=True, disabled=not email_input):
             if email_input:
-                # Create email content
-                email_subject, email_body = create_email_content(st.session_state.final_schedule, st.session_state.user_data)
+                # Create email content with attachment instructions
+                email_subject, email_body = create_email_content_with_attachment_instructions(
+                    st.session_state.final_schedule, 
+                    st.session_state.user_data
+                )
                 
                 # Create mailto link
                 mailto_url = f"mailto:{email_input}?subject={urllib.parse.quote(email_subject)}&body={urllib.parse.quote(email_body)}"
                 
-                # Show success message and link
-                st.success(f"📧 Email ready to send to {email_input}!")
+                # Show success message and detailed instructions
+                st.success(f"📧 Email ready for {email_input}!")
+                
+                # Download reminder with PDF
+                st.markdown("""
+                <div class="download-first">
+                    <h5>📎 Step 1: Download PDF First</h5>
+                    <p>Before opening your email, download the PDF using the button above. You'll need to attach it manually to your email.</p>
+                </div>
+                """, unsafe_allow_html=True)
+                
+                # Email button
                 st.markdown(f"""
                 <div style="text-align: center; margin: 1rem 0;">
                     <a href="{mailto_url}" target="_blank" class="email-button">
-                        🚀 Open Email Client & Send
+                        📧 Step 2: Open Email Client
                     </a>
+                </div>
+                """, unsafe_allow_html=True)
+                
+                # Attachment instructions
+                st.markdown("""
+                <div class="email-instructions">
+                    <h5>📋 Step 3: Attach PDF to Email</h5>
+                    <ol>
+                        <li>Your email client will open with the subject and body pre-filled</li>
+                        <li>Click the "Attach" or "📎" button in your email</li>
+                        <li>Select the StudyFlow_Schedule.pdf file you just downloaded</li>
+                        <li>Send the email - your PDF will be attached!</li>
+                    </ol>
                 </div>
                 """, unsafe_allow_html=True)
                 
@@ -1613,6 +1677,25 @@ def show_schedule_step():
                     st.markdown(f"**Subject:** {email_subject}")
                     st.markdown("**Body Preview:**")
                     st.text_area("", value=email_body[:1000] + "..." if len(email_body) > 1000 else email_body, height=200, disabled=True)
+                    
+                    # Additional download buttons in preview
+                    col_a, col_b = st.columns(2)
+                    with col_a:
+                        st.download_button(
+                            label="📄 Download PDF (for attachment)",
+                            data=pdf_data,
+                            file_name=f"StudyFlow_Schedule_{datetime.now().strftime('%Y%m%d')}.pdf",
+                            mime="application/pdf",
+                            use_container_width=True
+                        )
+                    with col_b:
+                        st.download_button(
+                            label="📅 Download Calendar (for attachment)",
+                            data=ics_content,
+                            file_name=f"StudyFlow_Calendar_{datetime.now().strftime('%Y%m%d')}.ics",
+                            mime="text/calendar",
+                            use_container_width=True
+                        )
             else:
                 st.warning("Please enter your email address first!")
         
@@ -1662,17 +1745,18 @@ def show_schedule_step():
     ✅ **{attention_span}-minute focus sessions** (perfect for your attention span!)
     ✅ **Social media breaks** included (because we're realistic!)
     ✅ **30 days** of personalized scheduling
+    ✅ **PDF & Calendar** ready for download and email attachment
     
-    📱 **Export your schedule above and start crushing your goals!**
+    📱 **Follow the email steps above to send your schedule with PDF attached!**
     """)
     
     # Social proof
     st.markdown("""
     <div class="social-proof">
         <h4>Join 10,000+ students who've improved their grades with StudyFlow!</h4>
-        <p>"Finally, a schedule app that doesn't make me feel guilty about checking Instagram!" - Sarah, Sophomore</p>
-        <p>"The dark theme is perfect for late-night study sessions and I can actually see what I'm typing!" - Mike, Junior</p>
-        <p>"I love that I can just enter my email at the end - no commitment until I'm ready!" - Alex, Senior</p>
+        <p>"The PDF attachment feature is perfect - I can email my schedule to myself and print it for my dorm!" - Sarah, Sophomore</p>
+        <p>"Finally, a schedule app that makes it easy to share with friends and family!" - Mike, Junior</p>
+        <p>"I love the step-by-step email instructions - so much easier than other apps!" - Alex, Senior</p>
     </div>
     """, unsafe_allow_html=True)
 
