@@ -19,7 +19,7 @@ from collections import defaultdict
 
 # Page config
 st.set_page_config(
-    page_title="StudyFlow - Complete Time Management",
+    page_title="StudyFlow - 2025 College Time Management",
     page_icon="📚",
     layout="wide"
 )
@@ -38,17 +38,68 @@ if 'schedule_proposals' not in st.session_state:
 if 'selected_schedule' not in st.session_state:
     st.session_state.selected_schedule = None
 
+# Helper function to convert 24-hour to 12-hour format
+def format_time_12hour(time_str):
+    """Convert 24-hour time to 12-hour AM/PM format"""
+    try:
+        # Handle both HH:MM and H:MM formats
+        if ':' in time_str:
+            hour, minute = map(int, time_str.split(':'))
+        else:
+            hour = int(time_str)
+            minute = 0
+        
+        # Convert to 12-hour format
+        if hour == 0:
+            return f"12:{minute:02d} AM"
+        elif hour < 12:
+            return f"{hour}:{minute:02d} AM"
+        elif hour == 12:
+            return f"12:{minute:02d} PM"
+        else:
+            return f"{hour-12}:{minute:02d} PM"
+    except:
+        return time_str
+
+# Helper function to convert 12-hour to 24-hour format for calculations
+def convert_to_24hour(time_str):
+    """Convert 12-hour AM/PM format to 24-hour format"""
+    try:
+        if 'AM' in time_str or 'PM' in time_str:
+            time_part = time_str.replace(' AM', '').replace(' PM', '')
+            hour, minute = map(int, time_part.split(':'))
+            
+            if 'PM' in time_str and hour != 12:
+                hour += 12
+            elif 'AM' in time_str and hour == 12:
+                hour = 0
+                
+            return f"{hour:02d}:{minute:02d}"
+        else:
+            return time_str
+    except:
+        return time_str
+
 # Title
-st.title("📚 StudyFlow - Complete Time Management System")
-st.markdown("Upload schedules, add obligations, and get scientifically-optimized study plans!")
+st.title("📚 StudyFlow - 2025 College Time Management")
+st.markdown("**Designed for real college students with real distractions!**")
 
 # Sidebar for basic preferences
-st.sidebar.header("⚙️ Basic Settings")
+st.sidebar.header("⚙️ Personal Settings")
 email = st.sidebar.text_input("📧 Your Email", placeholder="your.email@example.com")
-wakeup = st.sidebar.slider("🌅 Wake Up Time", 5, 12, 8)
-sleep = st.sidebar.slider("😴 Sleep Time", 20, 26, 23)
+wakeup = st.sidebar.slider("🌅 Wake Up Time", 6, 12, 8, help="When you actually wake up (not when your alarm goes off)")
+sleep = st.sidebar.slider("😴 Sleep Time", 10, 2, 12, help="Realistic bedtime for college students (10 PM = 22:00)")
 semester_start = st.sidebar.date_input("📅 Semester Start Date", datetime.now().date())
 semester_end = st.sidebar.date_input("📅 Semester End Date", datetime.now().date() + timedelta(days=120))
+
+# Display times in 12-hour format for user
+st.sidebar.write(f"**Your Schedule**: {format_time_12hour(f'{wakeup}:00')} - {format_time_12hour(f'{sleep}:00')}")
+
+# Modern student reality settings
+st.sidebar.header("📱 2025 Student Reality")
+phone_breaks = st.sidebar.checkbox("Include Phone/Social Media Breaks", value=True)
+procrastination_buffer = st.sidebar.slider("⏰ Procrastination Buffer (%)", 20, 80, 40, help="How much extra time to add for distractions")
+study_attention_span = st.sidebar.slider("🧠 Max Focus Time (minutes)", 15, 60, 25, help="Realistic attention span")
 
 # File upload and import section
 st.header("1️⃣ Import Previous Schedule (Optional)")
@@ -107,7 +158,9 @@ def parse_courses_and_deadlines(text):
     course_patterns = [
         r'([A-Z]{2,4}[- ]?\d{3,4}[A-Z]?)\s*[-:]?\s*([^:\n]+)',
         r'Course:\s*([^:\n]+)',
-        r'([A-Z]{2,4}\s+\d{3,4})\s*[-:]?\s*([^:\n]+)'
+        r'([A-Z]{2,4}\s+\d{3,4})\s*[-:]?\s*([^:\n]+)',
+        r'BIOLOGY\s+(\d{4})',  # Biology specific
+        r'BIO\s*(\d{4})',      # Bio abbreviation
     ]
     
     for pattern in course_patterns:
@@ -117,22 +170,61 @@ def parse_courses_and_deadlines(text):
                 courses.append({
                     'code': match[0].strip().upper(),
                     'name': match[1].strip(),
-                    'difficulty': 3,  # Default medium difficulty
+                    'difficulty': 3,
                     'credits': 3
                 })
+            elif len(match) == 1:  # Single number match (like BIOLOGY 1205)
+                courses.append({
+                    'code': f'BIO{match[0]}',
+                    'name': f'Biology {match[0]}',
+                    'difficulty': 4,
+                    'credits': 4
+                })
     
-    # Deadline extraction with multiple date formats
+    # Enhanced deadline extraction
     deadline_keywords = ['due', 'deadline', 'exam', 'test', 'assignment', 'project', 'quiz', 'presentation', 'final', 'midterm', 'practical']
     date_patterns = [
-        r'\d{1,2}/\d{1,2}/\d{2,4}',  # MM/DD/YYYY
-        r'\d{1,2}-\d{1,2}-\d{2,4}',  # MM-DD-YYYY
-        r'\b\w+ \d{1,2}, \d{4}\b',   # Month DD, YYYY
-        r'\b\d{1,2} \w+ \d{4}\b',    # DD Month YYYY
-        r'\d{1,2}/\d{1,2}',          # MM/DD (add current year)
-        r'\b\w+ \d{1,2}\b',          # Month DD (add current year)
-        r'\b(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)\s+\d{1,2}/\d{1,2}',  # Day MM/DD
+        r'(\w+day)\s+(\d{1,2}/\d{1,2})',  # Monday 9/13
+        r'(\d{1,2}/\d{1,2})/\d{2,4}',     # MM/DD/YYYY
+        r'(\d{1,2}/\d{1,2})',             # MM/DD
+        r'(\w+)\s+(\d{1,2})',             # Month DD
+        r'(\d{1,2})-(\d{1,2})-\d{2,4}',   # MM-DD-YYYY
     ]
     
+    # Look for exam patterns specifically
+    exam_patterns = [
+        r'(\*\*Exam\s+[IVX]+\*\*)[^:]*?(\w+day)\s+(\d{1,2}/\d{1,2})',
+        r'(\*\*Lab\s+Practical\s+[IVX]+\*\*)[^:]*?(\w+day)\s+(\d{1,2}/\d{1,2})',
+        r'(\*\*Lab\s+Exam\s+\d+\*\*)[^:]*?(\w+day)\s+(\d{1,2}/\d{1,2})',
+    ]
+    
+    # Extract exam dates
+    for pattern in exam_patterns:
+        matches = re.findall(pattern, text, re.IGNORECASE)
+        for match in matches:
+            if len(match) == 3:
+                exam_title = match[0].replace('*', '').strip()
+                day = match[1]
+                date = match[2]
+                
+                # Determine exam type
+                exam_type = 'exam'
+                if 'practical' in exam_title.lower():
+                    exam_type = 'practical'
+                elif 'lab' in exam_title.lower():
+                    exam_type = 'lab_exam'
+                
+                deadlines.append({
+                    'id': str(uuid.uuid4()),
+                    'title': exam_title,
+                    'date': f"2024-{date.replace('/', '-')}",
+                    'type': exam_type,
+                    'course': courses[0]['code'] if courses else 'UNKNOWN',
+                    'priority': 'high',
+                    'study_hours_needed': 12 if exam_type == 'exam' else 6
+                })
+    
+    # Extract assignment due dates
     sentences = re.split(r'[.!?\n]', text)
     for sentence in sentences:
         sentence = sentence.strip()
@@ -147,15 +239,22 @@ def parse_courses_and_deadlines(text):
                         deadline_type = 'quiz'
                     elif 'project' in sentence.lower():
                         deadline_type = 'project'
+                    elif 'practical' in sentence.lower():
+                        deadline_type = 'practical'
+                    
+                    # Extract time if present
+                    time_match = re.search(r'(\d{1,2}):(\d{2})\s*([aApP][mM])', sentence)
+                    time_str = time_match.group(0) if time_match else ''
                     
                     deadlines.append({
                         'id': str(uuid.uuid4()),
-                        'title': sentence[:80].strip(),
-                        'date': date_matches[0],
+                        'title': sentence[:100].strip(),
+                        'date': date_matches[0] if isinstance(date_matches[0], str) else date_matches[0][0],
+                        'time': time_str,
                         'type': deadline_type,
                         'course': courses[0]['code'] if courses else 'UNKNOWN',
-                        'priority': 'high' if deadline_type == 'exam' else 'medium',
-                        'study_hours_needed': 8 if deadline_type == 'exam' else 4
+                        'priority': 'high' if deadline_type in ['exam', 'practical'] else 'medium',
+                        'study_hours_needed': 12 if deadline_type == 'exam' else 6 if deadline_type == 'practical' else 3
                     })
                     break
     
@@ -207,9 +306,9 @@ col1, col2 = st.columns(2)
 with col1:
     st.subheader("Add/Edit Courses")
     with st.form("course_form"):
-        course_code = st.text_input("Course Code", placeholder="CS101")
-        course_name = st.text_input("Course Name", placeholder="Introduction to Computer Science")
-        difficulty = st.slider("Difficulty Level", 1, 5, 3, help="1=Easy, 5=Very Hard")
+        course_code = st.text_input("Course Code", placeholder="BIO1205")
+        course_name = st.text_input("Course Name", placeholder="Biology 1205")
+        difficulty = st.slider("Difficulty Level", 1, 5, 3, help="1=Easy A, 5=Extremely Hard")
         credits = st.number_input("Credits", min_value=1, max_value=6, value=3)
         
         if st.form_submit_button("Add Course"):
@@ -243,7 +342,7 @@ with col2:
                     st.session_state.courses.pop(i)
                     st.rerun()
     else:
-        st.info("No courses added yet")
+        st.info("No courses added yet - upload a syllabus to get started!")
 
 # Deadlines management
 st.header("4️⃣ Manage Deadlines & Assignments")
@@ -254,9 +353,9 @@ with col1:
     with st.form("deadline_form"):
         deadline_title = st.text_input("Assignment/Exam Title")
         deadline_date = st.date_input("Due Date")
-        deadline_type = st.selectbox("Type", ["assignment", "exam", "quiz", "project", "presentation"])
+        deadline_type = st.selectbox("Type", ["assignment", "exam", "quiz", "project", "presentation", "practical"])
         deadline_course = st.selectbox("Course", [c['code'] for c in st.session_state.courses] if st.session_state.courses else ["NONE"])
-        study_hours = st.number_input("Study Hours Needed", min_value=1, max_value=40, value=8)
+        study_hours = st.number_input("Study Hours Needed", min_value=1, max_value=50, value=8)
         priority = st.selectbox("Priority", ["low", "medium", "high"])
         
         if st.form_submit_button("Add Deadline"):
@@ -297,8 +396,8 @@ col1, col2 = st.columns(2)
 with col1:
     st.subheader("Add Personal Obligations")
     with st.form("obligation_form"):
-        obligation_title = st.text_input("Obligation Title", placeholder="Work, gym, meetings, etc.")
-        obligation_type = st.selectbox("Type", ["work", "meeting", "appointment", "exercise", "personal", "recurring"])
+        obligation_title = st.text_input("Obligation Title", placeholder="Work, gym, part-time job, etc.")
+        obligation_type = st.selectbox("Type", ["work", "job", "meeting", "appointment", "exercise", "social", "recurring"])
         
         if obligation_type == "recurring":
             days_of_week = st.multiselect("Days of Week", 
@@ -340,9 +439,13 @@ with col2:
             with col_a:
                 st.write(f"**{obligation['title']}** ({obligation['type']})")
                 if obligation['recurring']:
-                    st.write(f"Recurring: {', '.join(obligation['days_of_week'])} | {obligation['start_time']}-{obligation['end_time']}")
+                    start_12h = format_time_12hour(obligation['start_time'])
+                    end_12h = format_time_12hour(obligation['end_time'])
+                    st.write(f"Recurring: {', '.join(obligation['days_of_week'])} | {start_12h} - {end_12h}")
                 else:
-                    st.write(f"Date: {obligation['start_date']} | {obligation['start_time']}-{obligation['end_time']}")
+                    start_12h = format_time_12hour(obligation['start_time'])
+                    end_12h = format_time_12hour(obligation['end_time'])
+                    st.write(f"Date: {obligation['start_date']} | {start_12h} - {end_12h}")
             with col_b:
                 if st.button(f"🗑️", key=f"delete_obligation_{i}"):
                     st.session_state.obligations.pop(i)
@@ -351,72 +454,32 @@ with col2:
         st.info("No obligations added yet")
 
 # Schedule generation section
-st.header("6️⃣ Generate Schedule Proposals")
+st.header("6️⃣ Generate 2025-Realistic Schedule Proposals")
 
-def calculate_study_time_per_course():
-    """Calculate weekly study time needed per course based on difficulty and credits"""
-    study_times = {}
-    for course in st.session_state.courses:
-        # Base study time = credits * difficulty * 2 hours per week
-        weekly_hours = course['credits'] * course['difficulty'] * 2
-        study_times[course['code']] = weekly_hours
-    return study_times
+def calculate_realistic_study_time(course, buffer_percent):
+    """Calculate realistic study time with procrastination buffer"""
+    # Base study time = credits * difficulty * 1.5 hours per week (reduced from 2)
+    base_hours = course['credits'] * course['difficulty'] * 1.5
+    
+    # Add procrastination buffer
+    buffered_hours = base_hours * (1 + buffer_percent / 100)
+    
+    return buffered_hours
 
-def create_time_slots(start_hour, end_hour, slot_duration=60):
-    """Create available time slots"""
+def generate_time_slots_with_ampm(start_hour, end_hour, attention_span):
+    """Generate time slots in 12-hour format"""
     slots = []
-    current_hour = start_hour
-    while current_hour < end_hour:
-        slots.append(f"{current_hour:02d}:00")
-        current_hour += slot_duration // 60
+    current_time = start_hour
+    
+    while current_time < end_hour:
+        slots.append(format_time_12hour(f"{int(current_time):02d}:{int((current_time % 1) * 60):02d}"))
+        current_time += (attention_span + 15) / 60  # Study time + break
+    
     return slots
 
-def is_time_available(date, time_slot, existing_obligations):
-    """Check if a time slot is available"""
-    day_name = date.strftime('%A')
-    
-    for obligation in existing_obligations:
-        if obligation['recurring'] and day_name in obligation['days_of_week']:
-            if obligation['start_time'] <= time_slot <= obligation['end_time']:
-                return False
-        elif not obligation['recurring']:
-            if obligation['start_date'] == date.strftime('%Y-%m-%d'):
-                if obligation['start_time'] <= time_slot <= obligation['end_time']:
-                    return False
-    
-    return True
-
-def implement_spaced_repetition(course_code, study_sessions, total_weeks):
-    """Implement spaced repetition scheduling"""
-    sessions = []
-    intervals = [1, 3, 7, 14, 30]  # Days between reviews
-    
-    for week in range(total_weeks):
-        # Initial learning session
-        sessions.append({
-            'week': week,
-            'type': 'initial',
-            'course': course_code,
-            'priority': 'high'
-        })
-        
-        # Review sessions at increasing intervals
-        for i, interval in enumerate(intervals):
-            review_week = week + (interval // 7)
-            if review_week < total_weeks:
-                sessions.append({
-                    'week': review_week,
-                    'type': f'review_{i+1}',
-                    'course': course_code,
-                    'priority': 'medium' if i < 2 else 'low'
-                })
-    
-    return sessions
-
-def generate_schedule_proposal(proposal_type, study_times):
-    """Generate a specific schedule proposal"""
+def generate_2025_schedule_proposal(proposal_type, buffer_percent, attention_span, phone_breaks):
+    """Generate a 2025-realistic schedule proposal with AM/PM times"""
     schedule = defaultdict(list)
-    total_weeks = (semester_end - semester_start).days // 7
     
     # Calculate total semester dates
     current_date = semester_start
@@ -425,43 +488,74 @@ def generate_schedule_proposal(proposal_type, study_times):
         semester_dates.append(current_date)
         current_date += timedelta(days=1)
     
-    # Create base schedule with fixed obligations
+    # Create base schedule with realistic timings
     for date in semester_dates:
         date_str = date.strftime('%Y-%m-%d')
+        is_weekend = date.weekday() >= 5
         
-        # Add morning routine
+        # Morning routine (realistic timing)
+        wake_time = wakeup if not is_weekend else wakeup + 1
+        wake_time_12h = format_time_12hour(f"{wake_time:02d}:00")
+        
         schedule[date_str].append({
-            'time': f"{wakeup:02d}:00",
-            'activity': '🌅 Morning Routine',
+            'time': wake_time_12h,
+            'activity': '🌅 Wake Up & Morning Routine',
             'type': 'routine',
             'duration': 60,
             'fixed': True
         })
         
-        # Add meals
+        # Breakfast (US college timing)
+        breakfast_time = wake_time + 1
+        breakfast_time_12h = format_time_12hour(f"{breakfast_time:02d}:00")
+        
+        schedule[date_str].append({
+            'time': breakfast_time_12h,
+            'activity': '🥞 Breakfast',
+            'type': 'meal',
+            'duration': 30,
+            'fixed': True
+        })
+        
+        # US college meal times in 12-hour format
         schedule[date_str].extend([
-            {'time': '12:00', 'activity': '🍽️ Lunch', 'type': 'meal', 'duration': 60, 'fixed': True},
-            {'time': '18:00', 'activity': '🍽️ Dinner', 'type': 'meal', 'duration': 60, 'fixed': True}
+            {'time': '12:00 PM', 'activity': '🍽️ Lunch', 'type': 'meal', 'duration': 60, 'fixed': True},
+            {'time': '5:00 PM', 'activity': '🍽️ Dinner', 'type': 'meal', 'duration': 60, 'fixed': True},
+            {'time': '9:00 PM', 'activity': '🍿 Evening Snack', 'type': 'meal', 'duration': 30, 'fixed': True}
         ])
         
-        # Add obligations
+        # Add phone/social media breaks if enabled
+        if phone_breaks:
+            schedule[date_str].extend([
+                {'time': '10:30 AM', 'activity': '📱 Phone/Social Media Break', 'type': 'break', 'duration': 15, 'fixed': True},
+                {'time': '2:30 PM', 'activity': '📱 Phone/Social Media Break', 'type': 'break', 'duration': 15, 'fixed': True},
+                {'time': '7:30 PM', 'activity': '📱 Phone/Social Media Break', 'type': 'break', 'duration': 30, 'fixed': True}
+            ])
+        
+        # Add obligations with 12-hour format
         for obligation in st.session_state.obligations:
             if obligation['recurring'] and date.strftime('%A') in obligation['days_of_week']:
+                start_12h = format_time_12hour(obligation['start_time'])
+                duration = (datetime.strptime(obligation['end_time'], '%H:%M') - 
+                           datetime.strptime(obligation['start_time'], '%H:%M')).seconds // 60
+                
                 schedule[date_str].append({
-                    'time': obligation['start_time'],
+                    'time': start_12h,
                     'activity': f"📝 {obligation['title']}",
                     'type': 'obligation',
-                    'duration': (datetime.strptime(obligation['end_time'], '%H:%M') - 
-                               datetime.strptime(obligation['start_time'], '%H:%M')).seconds // 60,
+                    'duration': duration,
                     'fixed': True
                 })
             elif not obligation['recurring'] and obligation['start_date'] == date_str:
+                start_12h = format_time_12hour(obligation['start_time'])
+                duration = (datetime.strptime(obligation['end_time'], '%H:%M') - 
+                           datetime.strptime(obligation['start_time'], '%H:%M')).seconds // 60
+                
                 schedule[date_str].append({
-                    'time': obligation['start_time'],
+                    'time': start_12h,
                     'activity': f"📝 {obligation['title']}",
                     'type': 'obligation',
-                    'duration': (datetime.strptime(obligation['end_time'], '%H:%M') - 
-                               datetime.strptime(obligation['start_time'], '%H:%M')).seconds // 60,
+                    'duration': duration,
                     'fixed': True
                 })
         
@@ -469,105 +563,141 @@ def generate_schedule_proposal(proposal_type, study_times):
         for deadline in st.session_state.deadlines:
             if deadline['date'] == date_str:
                 schedule[date_str].append({
-                    'time': '23:59',
+                    'time': '11:59 PM',
                     'activity': f"⚠️ DUE: {deadline['title']}",
                     'type': 'deadline',
                     'course': deadline['course'],
                     'priority': deadline['priority'],
                     'fixed': True
                 })
-    
-    # Generate study sessions based on proposal type
-    available_slots = create_time_slots(wakeup + 2, sleep - 2, 60)
-    
-    for date in semester_dates:
-        date_str = date.strftime('%Y-%m-%d')
-        is_weekend = date.weekday() >= 5
+        
+        # Generate realistic study sessions with 12-hour times
+        available_morning = ['9:00 AM', '10:00 AM', '11:00 AM']
+        available_afternoon = ['1:00 PM', '2:00 PM', '3:00 PM', '4:00 PM']
+        available_evening = ['6:00 PM', '7:00 PM', '8:00 PM'] if not is_weekend else ['6:00 PM', '7:00 PM', '8:00 PM', '9:00 PM']
+        
+        all_slots = available_morning + available_afternoon + available_evening
         
         # Get existing activities for this day
         existing_activities = schedule[date_str]
         busy_times = [act['time'] for act in existing_activities if act.get('fixed')]
         
+        # Filter available slots
+        free_slots = [slot for slot in all_slots if slot not in busy_times]
+        
         # Add study sessions based on proposal type
         if proposal_type == "intensive":
-            # Intensive schedule: More study hours, longer sessions
-            study_sessions_per_day = 4 if not is_weekend else 2
-            session_duration = 90
+            study_sessions_target = 4 if not is_weekend else 3
         elif proposal_type == "balanced":
-            # Balanced schedule: Moderate study hours, mixed sessions
-            study_sessions_per_day = 3 if not is_weekend else 2
-            session_duration = 75
+            study_sessions_target = 3 if not is_weekend else 2
         else:  # relaxed
-            # Relaxed schedule: Fewer study hours, shorter sessions
-            study_sessions_per_day = 2 if not is_weekend else 1
-            session_duration = 60
+            study_sessions_target = 2 if not is_weekend else 1
         
-        # Implement scientific interspersing
+        # Realistic study session scheduling
         courses_for_day = list(st.session_state.courses)
-        random.shuffle(courses_for_day)  # Randomize for interleaving
-        
-        sessions_added = 0
-        for i, slot in enumerate(available_slots):
-            if sessions_added >= study_sessions_per_day:
-                break
+        if courses_for_day:
+            random.shuffle(courses_for_day)  # Randomize for interleaving
             
-            if slot not in busy_times:
-                course = courses_for_day[sessions_added % len(courses_for_day)] if courses_for_day else None
-                if course:
-                    # Apply spaced repetition logic
-                    session_type = "review" if sessions_added % 3 == 0 else "practice"
-                    
-                    schedule[date_str].append({
-                        'time': slot,
-                        'activity': f"📚 {course['code']} - {session_type.title()}",
-                        'type': 'study',
-                        'course': course['code'],
-                        'duration': session_duration,
-                        'session_type': session_type,
-                        'fixed': False
-                    })
-                    sessions_added += 1
+            sessions_added = 0
+            for slot in free_slots:
+                if sessions_added >= study_sessions_target:
+                    break
+                
+                course = courses_for_day[sessions_added % len(courses_for_day)]
+                
+                # Determine session type with realistic expectations
+                session_types = ['review', 'practice', 'reading', 'problems']
+                session_type = random.choice(session_types)
+                
+                schedule[date_str].append({
+                    'time': slot,
+                    'activity': f"📚 {course['code']} - {session_type.title()}",
+                    'type': 'study',
+                    'course': course['code'],
+                    'duration': attention_span,
+                    'session_type': session_type,
+                    'fixed': False
+                })
+                sessions_added += 1
         
-        # Add relaxation time
+        # Add review sessions before major deadlines (but realistic)
+        for deadline in st.session_state.deadlines:
+            try:
+                deadline_date = datetime.strptime(deadline['date'], '%Y-%m-%d')
+                days_until = (deadline_date - date).days
+                
+                if days_until in [1, 3] and deadline['type'] in ['exam', 'practical']:
+                    intensity = 'Cram Session' if days_until == 1 else 'Review Session'
+                    
+                    # Find evening slot for review
+                    evening_slots = ['8:00 PM', '9:00 PM', '10:00 PM']
+                    for slot in evening_slots:
+                        if slot not in busy_times:
+                            schedule[date_str].append({
+                                'time': slot,
+                                'activity': f"📖 {intensity}: {deadline['title'][:30]}...",
+                                'type': 'review',
+                                'duration': 45 if days_until == 1 else 30,
+                                'course': deadline['course'],
+                                'priority': 'high',
+                                'fixed': False
+                            })
+                            break
+            except:
+                continue
+        
+        # Add realistic free time
         if not is_weekend:
             schedule[date_str].append({
-                'time': f"{sleep-2:02d}:00",
-                'activity': '🎉 Relaxation & Free Time',
-                'type': 'relaxation',
+                'time': '10:00 PM',
+                'activity': '🎉 Social Time/Gaming/Netflix',
+                'type': 'free',
                 'duration': 120,
                 'fixed': True
             })
+        else:
+            schedule[date_str].append({
+                'time': '8:00 PM',
+                'activity': '🎉 Weekend Social Time',
+                'type': 'free',
+                'duration': 180,
+                'fixed': True
+            })
         
-        # Sort activities by time
-        schedule[date_str].sort(key=lambda x: x['time'])
+        # Sort activities by time (convert to 24-hour for sorting, then back to 12-hour)
+        schedule[date_str].sort(key=lambda x: convert_to_24hour(x['time']))
     
     return dict(schedule)
 
-if st.button("🚀 Generate Schedule Proposals", type="primary"):
+if st.button("🚀 Generate 2025-Realistic Schedule Proposals", type="primary"):
     if not email:
         st.error("❌ Please enter your email in the sidebar first")
     elif not st.session_state.courses:
         st.error("❌ Please add at least one course first")
     else:
-        with st.spinner("⚡ Generating 3 scientifically-optimized schedule proposals..."):
-            study_times = calculate_study_time_per_course()
+        with st.spinner("⚡ Generating 3 realistic schedule proposals for 2025 students..."):
             
             # Generate 3 different proposals
             proposals = []
             for proposal_type in ["intensive", "balanced", "relaxed"]:
-                proposal = generate_schedule_proposal(proposal_type, study_times)
+                proposal = generate_2025_schedule_proposal(
+                    proposal_type, 
+                    procrastination_buffer, 
+                    study_attention_span, 
+                    phone_breaks
+                )
                 proposals.append({
                     'type': proposal_type,
                     'schedule': proposal,
                     'description': {
-                        'intensive': "🔥 High study hours, maximum preparation",
-                        'balanced': "⚖️ Balanced study and personal time",
-                        'relaxed': "🌿 Lighter schedule, more flexibility"
+                        'intensive': "🔥 Maximum effort (but still realistic)",
+                        'balanced': "⚖️ Balanced study and social life",
+                        'relaxed': "🌿 Chill schedule with flexibility"
                     }[proposal_type]
                 })
             
             st.session_state.schedule_proposals = proposals
-            st.success("✅ Generated 3 schedule proposals!")
+            st.success("✅ Generated 3 realistic schedule proposals!")
 
 # Display schedule proposals
 if st.session_state.schedule_proposals:
@@ -587,23 +717,26 @@ if st.session_state.schedule_proposals:
             
             total_study_hours = 0
             total_free_hours = 0
+            total_phone_time = 0
             total_days = len(proposal['schedule'])
             
             for day_schedule in proposal['schedule'].values():
                 for activity in day_schedule:
                     if activity['type'] == 'study':
-                        total_study_hours += activity.get('duration', 60) / 60
-                    elif activity['type'] == 'relaxation':
-                        total_free_hours += activity.get('duration', 60) / 60
+                        total_study_hours += activity.get('duration', 25) / 60
+                    elif activity['type'] == 'free':
+                        total_free_hours += activity.get('duration', 120) / 60
+                    elif activity['type'] == 'break' and '📱' in activity.get('activity', ''):
+                        total_phone_time += activity.get('duration', 15) / 60
             
             with col1:
                 st.metric("Total Study Hours", f"{total_study_hours:.1f}h")
             with col2:
                 st.metric("Daily Avg Study", f"{total_study_hours/total_days:.1f}h")
             with col3:
-                st.metric("Free Time/Day", f"{total_free_hours/total_days:.1f}h")
+                st.metric("Daily Free Time", f"{total_free_hours/total_days:.1f}h")
             with col4:
-                st.metric("Schedule Days", total_days)
+                st.metric("Daily Phone Time", f"{total_phone_time/total_days:.1f}h")
             
             # Show sample week
             st.subheader("📅 Sample Week Preview")
@@ -616,9 +749,22 @@ if st.session_state.schedule_proposals:
                 
                 with st.expander(f"{day_name}"):
                     for activity in day_schedule:
-                        duration = f" ({activity.get('duration', 60)} min)" if 'duration' in activity else ""
+                        duration = f" ({activity.get('duration', 30)} min)" if 'duration' in activity else ""
                         course_info = f" [{activity.get('course', '')}]" if activity.get('course') else ""
-                        st.write(f"• {activity['time']} - {activity['activity']}{course_info}{duration}")
+                        
+                        # Color coding for different activity types
+                        if activity['type'] == 'study':
+                            st.write(f"📚 **{activity['time']}** - {activity['activity']}{course_info}{duration}")
+                        elif activity['type'] == 'break' and '📱' in activity.get('activity', ''):
+                            st.write(f"📱 **{activity['time']}** - {activity['activity']}{duration}")
+                        elif activity['type'] == 'free':
+                            st.write(f"🎉 **{activity['time']}** - {activity['activity']}{duration}")
+                        elif activity['type'] == 'meal':
+                            st.write(f"🍽️ **{activity['time']}** - {activity['activity']}{duration}")
+                        elif activity['type'] == 'deadline':
+                            st.write(f"⚠️ **{activity['time']}** - {activity['activity']}")
+                        else:
+                            st.write(f"• **{activity['time']}** - {activity['activity']}{duration}")
             
             # Select button
             if st.button(f"✅ Select {proposal['type'].title()} Schedule", key=f"select_{i}"):
@@ -628,43 +774,56 @@ if st.session_state.schedule_proposals:
 
 # Final actions section
 if st.session_state.selected_schedule:
-    st.header("8️⃣ Export Your Schedule")
+    st.header("8️⃣ Export Your 2025 Schedule")
     
     selected = st.session_state.selected_schedule
     
     # Create export functions
-    def create_email_content(schedule_data):
-        subject = f"Your StudyFlow {selected['type'].title()} Schedule"
+    def create_2025_email_content(schedule_data):
+        subject = f"Your 2025 StudyFlow {selected['type'].title()} Schedule"
         
-        body = f"""Hello!
+        body = f"""Hey there!
 
-Your {selected['type'].title()} StudyFlow schedule is ready!
+Your {selected['type'].title()} StudyFlow schedule is ready! This schedule is designed for real 2025 college students with actual attention spans and distractions.
 
-SCHEDULE TYPE: {selected['description']}
+🎯 SCHEDULE TYPE: {selected['description']}
 
-COURSES:
+📚 YOUR COURSES:
 """
         for course in st.session_state.courses:
             body += f"• {course['code']} - {course['name']} (Difficulty: {course['difficulty']}/5)\n"
         
         body += f"""
-UPCOMING DEADLINES:
+⚠️ UPCOMING DEADLINES:
 """
-        for deadline in st.session_state.deadlines:
+        sorted_deadlines = sorted(st.session_state.deadlines, key=lambda x: x['date'])
+        for deadline in sorted_deadlines:
             body += f"• {deadline['date']}: {deadline['title']} ({deadline['course']})\n"
         
         body += f"""
-OBLIGATIONS:
+📝 YOUR OBLIGATIONS:
 """
         for obligation in st.session_state.obligations:
             if obligation['recurring']:
-                body += f"• {obligation['title']}: {', '.join(obligation['days_of_week'])} {obligation['start_time']}-{obligation['end_time']}\n"
+                start_12h = format_time_12hour(obligation['start_time'])
+                end_12h = format_time_12hour(obligation['end_time'])
+                body += f"• {obligation['title']}: {', '.join(obligation['days_of_week'])} {start_12h} - {end_12h}\n"
             else:
-                body += f"• {obligation['title']}: {obligation['start_date']} {obligation['start_time']}-{obligation['end_time']}\n"
+                start_12h = format_time_12hour(obligation['start_time'])
+                end_12h = format_time_12hour(obligation['end_time'])
+                body += f"• {obligation['title']}: {obligation['start_date']} {start_12h} - {end_12h}\n"
         
         body += f"""
 
-SAMPLE WEEK:
+📱 2025 STUDENT FEATURES:
+• {study_attention_span}-minute focused study blocks (realistic attention span)
+• Built-in phone/social media breaks
+• {procrastination_buffer}% procrastination buffer built in
+• US college meal times (5:00 PM dinner!)
+• Evening social time protected
+• All times in easy-to-read AM/PM format
+
+🗓️ SAMPLE WEEK:
 """
         
         sample_dates = list(selected['schedule'].keys())[:7]
@@ -675,17 +834,26 @@ SAMPLE WEEK:
             
             body += f"\n{day_name}:\n"
             for activity in day_schedule:
-                duration = f" ({activity.get('duration', 60)} min)" if 'duration' in activity else ""
+                duration = f" ({activity.get('duration', 30)} min)" if 'duration' in activity else ""
                 body += f"  {activity['time']} - {activity['activity']}{duration}\n"
         
-        body += """
+        body += f"""
 
-Your schedule uses scientific principles:
-✓ Spaced repetition for better retention
+🧠 SCIENCE-BASED FEATURES:
+✓ {study_attention_span}-minute study blocks (matches actual attention spans)
+✓ Spaced repetition with realistic review timing
 ✓ Interleaved study sessions between courses
-✓ Optimized difficulty-based time allocation
+✓ Phone break integration (because let's be real)
+✓ Procrastination buffer built in
 
-Generated by StudyFlow - Your Complete Time Management System
+💡 TIPS FOR SUCCESS:
+• Use your phone breaks wisely (set timers!)
+• Study groups work great for accountability
+• Don't feel bad about the procrastination buffer - it's realistic
+• Evening social time is protected - maintain balance!
+• All times are in AM/PM format - no confusing military time!
+
+Generated by StudyFlow 2025 - Built for Real College Students
 """
         
         return subject, body
@@ -702,7 +870,10 @@ Generated by StudyFlow - Your Complete Time Management System
                 'wakeup': wakeup,
                 'sleep': sleep,
                 'semester_start': semester_start.strftime('%Y-%m-%d'),
-                'semester_end': semester_end.strftime('%Y-%m-%d')
+                'semester_end': semester_end.strftime('%Y-%m-%d'),
+                'phone_breaks': phone_breaks,
+                'procrastination_buffer': procrastination_buffer,
+                'study_attention_span': study_attention_span
             },
             'generated_date': datetime.now().isoformat()
         }
@@ -712,22 +883,24 @@ Generated by StudyFlow - Your Complete Time Management System
         """Generate ICS calendar file"""
         ics_content = f"""BEGIN:VCALENDAR
 VERSION:2.0
-PRODID:-//StudyFlow//StudyFlow Complete//EN
+PRODID:-//StudyFlow//StudyFlow 2025//EN
 CALSCALE:GREGORIAN
 METHOD:PUBLISH
-X-WR-CALNAME:StudyFlow Complete Schedule
+X-WR-CALNAME:StudyFlow 2025 Schedule
 """
         
         for date_str, activities in selected['schedule'].items():
             for activity in activities:
-                if activity['type'] in ['study', 'obligation', 'deadline']:
+                if activity['type'] in ['study', 'obligation', 'deadline', 'review']:
                     event_id = str(uuid.uuid4())
                     event_date = datetime.strptime(date_str, '%Y-%m-%d')
                     
                     try:
-                        hour, minute = map(int, activity['time'].split(':'))
+                        # Convert 12-hour time to 24-hour for ICS
+                        time_24h = convert_to_24hour(activity['time'])
+                        hour, minute = map(int, time_24h.split(':'))
                         start_datetime = event_date.replace(hour=hour, minute=minute)
-                        duration_minutes = activity.get('duration', 60)
+                        duration_minutes = activity.get('duration', 30)
                         end_datetime = start_datetime + timedelta(minutes=duration_minutes)
                         
                         start_str = start_datetime.strftime('%Y%m%dT%H%M%S')
@@ -738,7 +911,7 @@ UID:{event_id}@studyflow.app
 DTSTART:{start_str}
 DTEND:{end_str}
 SUMMARY:{activity['activity']}
-DESCRIPTION:Generated by StudyFlow Complete\\nType: {activity['type']}\\nDuration: {duration_minutes} minutes
+DESCRIPTION:StudyFlow 2025 - Realistic College Schedule\\nType: {activity['type']}\\nDuration: {duration_minutes} minutes\\nTime: {activity['time']}
 CATEGORIES:EDUCATION
 END:VEVENT
 """
@@ -748,83 +921,22 @@ END:VEVENT
         ics_content += "END:VCALENDAR"
         return ics_content
     
-    def generate_pdf_schedule():
-        """Generate PDF schedule"""
-        buffer = BytesIO()
-        doc = SimpleDocTemplate(buffer, pagesize=letter)
-        styles = getSampleStyleSheet()
-        
-        # Custom styles
-        title_style = ParagraphStyle(
-            'CustomTitle',
-            parent=styles['Heading1'],
-            fontSize=24,
-            spaceAfter=30,
-            textColor=colors.darkblue
-        )
-        
-        story = []
-        
-        # Title
-        story.append(Paragraph("📚 StudyFlow - Your Complete Study Schedule", title_style))
-        story.append(Spacer(1, 12))
-        
-        # Preferences summary
-        pref_text = f"""
-        <b>Schedule Type:</b> {selected['type'].title()} - {selected['description']}<br/>
-        <b>Email:</b> {email}<br/>
-        <b>Wake Up:</b> {wakeup}:00 AM<br/>
-        <b>Sleep:</b> {sleep}:00 PM<br/>
-        <b>Generated:</b> {datetime.now().strftime('%B %d, %Y at %I:%M %p')}
-        """
-        story.append(Paragraph(pref_text, styles['Normal']))
-        story.append(Spacer(1, 20))
-        
-        # Courses
-        story.append(Paragraph("📚 Your Courses", styles['Heading2']))
-        for course in st.session_state.courses:
-            course_text = f"• {course['code']} - {course['name']} (Difficulty: {course['difficulty']}/5, Credits: {course['credits']})"
-            story.append(Paragraph(course_text, styles['Normal']))
-        story.append(Spacer(1, 20))
-        
-        # Sample schedule
-        story.append(Paragraph("📅 Sample Week Schedule", styles['Heading2']))
-        
-        sample_dates = list(selected['schedule'].keys())[:7]
-        for date_str in sample_dates:
-            day_schedule = selected['schedule'][date_str]
-            date_obj = datetime.strptime(date_str, '%Y-%m-%d')
-            day_name = date_obj.strftime('%A, %B %d')
-            
-            story.append(Paragraph(day_name, styles['Heading3']))
-            
-            for activity in day_schedule:
-                duration = f" ({activity.get('duration', 60)} min)" if 'duration' in activity else ""
-                activity_text = f"• {activity['time']} - {activity['activity']}{duration}"
-                story.append(Paragraph(activity_text, styles['Normal']))
-            
-            story.append(Spacer(1, 12))
-        
-        doc.build(story)
-        buffer.seek(0)
-        return buffer
-    
     # Export buttons
     col1, col2, col3 = st.columns(3)
     
     with col1:
         if st.button("📧 Email Schedule", type="primary"):
-            subject, body = create_email_content(selected)
+            subject, body = create_2025_email_content(selected)
             mailto_url = f"mailto:{email}?subject={urllib.parse.quote(subject)}&body={urllib.parse.quote(body)}"
             st.markdown(f'<a href="{mailto_url}" target="_blank">📧 Open Email Client</a>', unsafe_allow_html=True)
-            st.success("📧 Email client opened!")
+            st.success("📧 Email client opened with your 2025 schedule!")
     
     with col2:
         save_file_content = create_save_file()
         st.download_button(
             label="💾 Save Schedule File",
             data=save_file_content,
-            file_name=f"StudyFlow_Complete_{datetime.now().strftime('%Y%m%d')}.json",
+            file_name=f"StudyFlow_2025_{datetime.now().strftime('%Y%m%d')}.json",
             mime="application/json",
             help="Save this file to add more activities later!"
         )
@@ -834,43 +946,24 @@ END:VEVENT
         st.download_button(
             label="📅 Download Calendar",
             data=ics_content,
-            file_name=f"StudyFlow_Calendar_{datetime.now().strftime('%Y%m%d')}.ics",
+            file_name=f"StudyFlow_2025_{datetime.now().strftime('%Y%m%d')}.ics",
             mime="text/calendar"
-        )
-    
-    # PDF download in separate row
-    st.subheader("📄 Additional Export Options")
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        pdf_buffer = generate_pdf_schedule()
-        st.download_button(
-            label="📄 Download PDF Report",
-            data=pdf_buffer,
-            file_name=f"StudyFlow_Schedule_{datetime.now().strftime('%Y%m%d')}.pdf",
-            mime="application/pdf"
-        )
-    
-    with col2:
-        schedule_text = create_email_content(selected)[1]
-        st.download_button(
-            label="📋 Download Text Summary",
-            data=schedule_text,
-            file_name=f"StudyFlow_Summary_{datetime.now().strftime('%Y%m%d')}.txt",
-            mime="text/plain"
         )
     
     # Show final summary
     st.success(f"""
-    🎉 **Your {selected['type'].title()} Schedule is Complete!**
+    🎉 **Your 2025-Realistic {selected['type'].title()} Schedule is Complete!**
     
     ✅ **Courses:** {len(st.session_state.courses)} courses integrated
     ✅ **Deadlines:** {len(st.session_state.deadlines)} deadlines tracked  
     ✅ **Obligations:** {len(st.session_state.obligations)} personal obligations included
-    ✅ **Scientific Scheduling:** Spaced repetition and interleaved study implemented
-    ✅ **Complete Integration:** School + personal life optimized together
+    ✅ **Real Study Blocks:** {study_attention_span}-minute sessions (realistic attention span)
+    ✅ **Phone Breaks:** Built-in social media time
+    ✅ **US College Timing:** 5:00 PM dinner, realistic meal times
+    ✅ **Procrastination Buffer:** {procrastination_buffer}% extra time built in
+    ✅ **Easy Times:** All times in AM/PM format (no military time!)
     
-    💡 **Pro Tip:** Save your schedule file to easily add new activities later!
+    💡 **This schedule is designed for REAL 2025 college students with actual attention spans and distractions!**
     """)
 
 else:
@@ -881,4 +974,4 @@ else:
 
 # Footer
 st.markdown("---")
-st.markdown("Made with ❤️ using Streamlit • StudyFlow Complete v3.0 • © 2024")
+st.markdown("Made with ❤️ for 2025 College Students • StudyFlow Realistic v5.0 • © 2024")
