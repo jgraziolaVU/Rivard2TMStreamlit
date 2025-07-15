@@ -302,25 +302,27 @@ st.markdown("""
     .email-input {
         width: 100%;
         padding: 1rem;
-        border: 2px solid rgba(255, 255, 255, 0.2);
+        border: 2px solid rgba(255, 255, 255, 0.4) !important;
         border-radius: 12px;
         font-size: 1rem;
         margin-bottom: 1rem;
         font-family: 'Inter', sans-serif;
-        background: rgba(255, 255, 255, 0.1);
-        color: #ffffff;
+        background: rgba(255, 255, 255, 0.2) !important;
+        color: #ffffff !important;
         backdrop-filter: blur(10px);
+        font-weight: 500;
     }
     
     .email-input:focus {
         outline: none;
-        border-color: #6c5ce7;
-        box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.2);
-        background: rgba(255, 255, 255, 0.15);
+        border-color: #6c5ce7 !important;
+        box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.3) !important;
+        background: rgba(255, 255, 255, 0.25) !important;
     }
     
     .email-input::placeholder {
-        color: rgba(255, 255, 255, 0.6);
+        color: rgba(255, 255, 255, 0.7) !important;
+        font-weight: 400;
     }
     
     .email-button {
@@ -356,30 +358,145 @@ st.markdown("""
     
     /* Streamlit component styling */
     .stSelectbox > div > div {
-        background: rgba(255, 255, 255, 0.1);
-        border: 2px solid rgba(255, 255, 255, 0.2);
+        background: rgba(255, 255, 255, 0.15);
+        border: 2px solid rgba(255, 255, 255, 0.3);
         border-radius: 12px;
-        color: #ffffff;
+        color: #ffffff !important;
+    }
+    
+    .stSelectbox > div > div > div {
+        color: #ffffff !important;
+    }
+    
+    .stSelectbox label {
+        color: #ffffff !important;
+        font-weight: 500 !important;
     }
     
     .stSlider > div > div > div {
-        background: rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.15);
+    }
+    
+    .stSlider label {
+        color: #ffffff !important;
+        font-weight: 500 !important;
+    }
+    
+    .stSlider > div > div > div > div {
+        color: #ffffff !important;
     }
     
     .stCheckbox > label {
         color: #ffffff !important;
+        font-weight: 500 !important;
+    }
+    
+    .stCheckbox > label > div {
+        color: #ffffff !important;
     }
     
     .stTextInput > div > div > input {
-        background: rgba(255, 255, 255, 0.1);
-        border: 2px solid rgba(255, 255, 255, 0.2);
-        border-radius: 12px;
-        color: #ffffff;
+        background: rgba(255, 255, 255, 0.15) !important;
+        border: 2px solid rgba(255, 255, 255, 0.3) !important;
+        border-radius: 12px !important;
+        color: #ffffff !important;
+        font-weight: 500 !important;
     }
     
     .stTextInput > div > div > input:focus {
-        border-color: #6c5ce7;
-        box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.2);
+        border-color: #6c5ce7 !important;
+        box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.2) !important;
+        background: rgba(255, 255, 255, 0.2) !important;
+    }
+    
+    .stTextInput label {
+        color: #ffffff !important;
+        font-weight: 500 !important;
+    }
+    
+    .stMarkdown h1, .stMarkdown h2, .stMarkdown h3, .stMarkdown h4, .stMarkdown h5, .stMarkdown h6 {
+        color: #ffffff !important;
+    }
+    
+    .stMarkdown p {
+        color: rgba(255, 255, 255, 0.9) !important;
+    }
+    
+    .stMarkdown strong {
+        color: #ffffff !important;
+    }
+    
+    .stMarkdown {
+        color: rgba(255, 255, 255, 0.9) !important;
+    }
+    
+    /* File uploader styling */
+    .stFileUploader > div > div {
+        background: rgba(255, 255, 255, 0.1);
+        border: 2px dashed rgba(255, 255, 255, 0.3);
+        border-radius: 12px;
+        color: #ffffff !important;
+    }
+    
+    .stFileUploader label {
+        color: #ffffff !important;
+        font-weight: 500 !important;
+    }
+    
+    /* Better text visibility for all markdown elements */
+    .stMarkdown ul li {
+        color: rgba(255, 255, 255, 0.9) !important;
+    }
+    
+    .stMarkdown ol li {
+        color: rgba(255, 255, 255, 0.9) !important;
+    }
+    
+    /* Slider value text */
+    .stSlider > div > div > div > div > div {
+        color: #ffffff !important;
+        font-weight: 600 !important;
+    }
+    
+    /* Select box dropdown text */
+    .stSelectbox > div > div > div > div {
+        color: #ffffff !important;
+    }
+    
+    /* Better contrast for all text areas */
+    .stTextArea > div > div > textarea {
+        background: rgba(255, 255, 255, 0.15) !important;
+        border: 2px solid rgba(255, 255, 255, 0.3) !important;
+        border-radius: 12px !important;
+        color: #ffffff !important;
+        font-weight: 500 !important;
+    }
+    
+    .stTextArea > div > div > textarea:focus {
+        border-color: #6c5ce7 !important;
+        box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.2) !important;
+        background: rgba(255, 255, 255, 0.2) !important;
+    }
+    
+    .stTextArea label {
+        color: #ffffff !important;
+        font-weight: 500 !important;
+    }
+    
+    /* Ensure all interactive elements have proper contrast */
+    .stSelectbox, .stSlider, .stCheckbox, .stTextInput, .stTextArea {
+        color: #ffffff !important;
+    }
+    
+    /* Force white text on all form elements */
+    div[data-testid="stMarkdownContainer"] p {
+        color: rgba(255, 255, 255, 0.9) !important;
+    }
+    
+    /* Stronger text for section headers */
+    .setup-card h3, .setup-card h4 {
+        color: #ffffff !important;
+        font-weight: 600 !important;
     }
     
     .stButton > button {
