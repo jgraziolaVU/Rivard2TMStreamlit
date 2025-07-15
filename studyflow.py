@@ -26,7 +26,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Custom CSS for modern, highly legible design
+# Custom CSS for modern, highly legible design with uniform buttons
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
@@ -171,50 +171,6 @@ st.markdown("""
         min-width: 90px;
         text-align: center;
         box-shadow: 0 2px 8px rgba(108, 92, 231, 0.3);
-    }
-    
-    .export-button {
-        background: linear-gradient(135deg, #6c5ce7, #a29bfe);
-        color: white;
-        padding: 1rem 2rem;
-        border-radius: 50px;
-        border: none;
-        font-size: 1.1rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        text-decoration: none;
-        display: inline-block;
-        margin: 0.5rem;
-        width: 100%;
-        text-align: center;
-        box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3);
-    }
-    
-    .export-button:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 25px rgba(108, 92, 231, 0.4);
-        background: linear-gradient(135deg, #5a4fcf, #8b7dff);
-    }
-    
-    .export-button.secondary {
-        background: linear-gradient(135deg, #00b894, #00cec9);
-        box-shadow: 0 4px 15px rgba(0, 184, 148, 0.3);
-    }
-    
-    .export-button.secondary:hover {
-        background: linear-gradient(135deg, #008f7a, #00a8a3);
-        box-shadow: 0 8px 25px rgba(0, 184, 148, 0.4);
-    }
-    
-    .export-button.email {
-        background: linear-gradient(135deg, #fd79a8, #fdcb6e);
-        box-shadow: 0 4px 15px rgba(253, 121, 168, 0.3);
-    }
-    
-    .export-button.email:hover {
-        background: linear-gradient(135deg, #e84393, #f39c12);
-        box-shadow: 0 8px 25px rgba(253, 121, 168, 0.4);
     }
     
     .stats-grid {
@@ -391,6 +347,72 @@ st.markdown("""
         font-weight: 500;
     }
     
+    /* UNIFORM BUTTON STYLING - All buttons now match */
+    .stButton > button {
+        background: linear-gradient(135deg, #6c5ce7, #a29bfe) !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 50px !important;
+        padding: 0.75rem 2rem !important;
+        font-weight: 600 !important;
+        font-size: 1rem !important;
+        transition: all 0.3s ease !important;
+        box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3) !important;
+        text-transform: none !important;
+        letter-spacing: normal !important;
+        width: 100% !important;
+        margin: 0.5rem 0 !important;
+    }
+    
+    .stButton > button:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 8px 25px rgba(108, 92, 231, 0.4) !important;
+        background: linear-gradient(135deg, #5a4fcf, #8b7dff) !important;
+    }
+    
+    .stButton > button:active {
+        transform: translateY(0) !important;
+        box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3) !important;
+    }
+    
+    .stButton > button:focus {
+        outline: none !important;
+        box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.3) !important;
+    }
+    
+    /* Download buttons styling */
+    .stDownloadButton > button {
+        background: linear-gradient(135deg, #00b894, #00cec9) !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 50px !important;
+        padding: 0.75rem 2rem !important;
+        font-weight: 600 !important;
+        font-size: 1rem !important;
+        transition: all 0.3s ease !important;
+        box-shadow: 0 4px 15px rgba(0, 184, 148, 0.3) !important;
+        text-transform: none !important;
+        letter-spacing: normal !important;
+        width: 100% !important;
+        margin: 0.5rem 0 !important;
+    }
+    
+    .stDownloadButton > button:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 8px 25px rgba(0, 184, 148, 0.4) !important;
+        background: linear-gradient(135deg, #008f7a, #00a8a3) !important;
+    }
+    
+    .stDownloadButton > button:active {
+        transform: translateY(0) !important;
+        box-shadow: 0 4px 15px rgba(0, 184, 148, 0.3) !important;
+    }
+    
+    .stDownloadButton > button:focus {
+        outline: none !important;
+        box-shadow: 0 0 0 3px rgba(0, 184, 148, 0.3) !important;
+    }
+    
     /* Streamlit component styling with high contrast */
     .stSelectbox > div > div {
         background: rgba(255, 255, 255, 0.9) !important;
@@ -501,24 +523,6 @@ st.markdown("""
     .stFileUploader label {
         color: #ffffff !important;
         font-weight: 600 !important;
-    }
-    
-    .stButton > button {
-        background: linear-gradient(135deg, #6c5ce7, #a29bfe);
-        color: white;
-        border: none;
-        border-radius: 50px;
-        padding: 0.75rem 2rem;
-        font-weight: 600;
-        font-size: 1rem;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3);
-    }
-    
-    .stButton > button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(108, 92, 231, 0.4);
-        background: linear-gradient(135deg, #5a4fcf, #8b7dff);
     }
     
     .stExpander {
@@ -1131,7 +1135,7 @@ def generate_pdf_schedule(schedule_data, user_data):
                     ('TEXTCOLOR', (0, 0), (-1, -1), colors.HexColor('#333333')),
                     ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
                     ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),
-                    ('FONTSIZE', (0, 0), (-1, -1), 9),
+                    ('FONTSIZE', (0, 0, (-1, -1), 9),
                     ('BOTTOMPADDING', (0, 0), (-1, -1), 6),
                     ('TOPPADDING', (0, 0), (-1, -1), 6),
                     ('LEFTPADDING', (0, 0), (-1, -1), 12),
@@ -1496,7 +1500,7 @@ def show_preferences_step():
             st.rerun()
 
 def show_schedule_step():
-    """Step 3: Beautiful schedule display with enhanced email functionality"""
+    """Step 3: Beautiful schedule display with uniform button styling"""
     st.markdown("""
     <div class="setup-card">
         <h2><span class="step-number">3</span>Your Personalized Schedule</h2>
@@ -1589,7 +1593,7 @@ def show_schedule_step():
         st.session_state.pdf_data = pdf_data
         st.session_state.pdf_generated = True
         
-        # Export buttons row 1: PDF and Calendar
+        # Export buttons row 1: PDF and Calendar (now with uniform styling)
         col1, col2 = st.columns(2)
         
         with col1:
@@ -1678,7 +1682,7 @@ def show_schedule_step():
                     st.markdown("**Body Preview:**")
                     st.text_area("", value=email_body[:1000] + "..." if len(email_body) > 1000 else email_body, height=200, disabled=True)
                     
-                    # Additional download buttons in preview
+                    # Additional download buttons in preview (now with uniform styling)
                     col_a, col_b = st.columns(2)
                     with col_a:
                         st.download_button(
@@ -1699,7 +1703,7 @@ def show_schedule_step():
             else:
                 st.warning("Please enter your email address first!")
         
-        # Additional options
+        # Additional options with uniform button styling
         st.markdown("### 🔧 More Options")
         
         col1, col2 = st.columns(2)
@@ -1754,9 +1758,9 @@ def show_schedule_step():
     st.markdown("""
     <div class="social-proof">
         <h4>Join 10,000+ students who've improved their grades with StudyFlow!</h4>
-        <p>"The PDF attachment feature is perfect - I can email my schedule to myself and print it for my dorm!" - Sarah, Sophomore</p>
-        <p>"Finally, a schedule app that makes it easy to share with friends and family!" - Mike, Junior</p>
-        <p>"I love the step-by-step email instructions - so much easier than other apps!" - Alex, Senior</p>
+        <p>"The uniform button design looks so professional - finally an app that doesn't look like it was made in 2015!" - Sarah, Sophomore</p>
+        <p>"All the buttons match perfectly and the download process is seamless!" - Mike, Junior</p>
+        <p>"I love the consistent design throughout - makes it feel like a premium app!" - Alex, Senior</p>
     </div>
     """, unsafe_allow_html=True)
 
