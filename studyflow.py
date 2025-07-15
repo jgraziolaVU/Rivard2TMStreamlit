@@ -521,54 +521,78 @@ def smart_parse_schedule(text):
     courses = []
     deadlines = []
     
-    # Enhanced course detection with better Biology patterns
-    course_patterns = [
-        r'BIOLOGY\s+(\d{4})\s*[-:]?\s*([^:\n]{10,100})',  # BIOLOGY 1205 pattern
-        r'BIO\s*(\d{4})\s*[-:]?\s*([^:\n]{10,100})',      # BIO1205 pattern
-        r'([A-Z]{2,4}[- ]?\d{3,4}[A-Z]?)\s*[-:]?\s*([^:\n]{10,80})',  # General course pattern
-        r'Course:\s*([^:\n]+)',
-        r'([A-Z]{2,4}\s+\d{3,4})\s*[-:]?\s*([^:\n]+)',
-    ]
-    
     # Track seen courses to avoid duplicates
     seen_courses = set()
     
-    for pattern in course_patterns:
-        matches = re.findall(pattern, text, re.IGNORECASE)
-        for match in matches:
-            if len(match) == 2:
-                # For BIOLOGY/BIO patterns, construct proper course code
-                if pattern.startswith(r'BIOLOGY') or pattern.startswith(r'BIO'):
+    # First, try to find BIOLOGY pattern specifically
+    biology_pattern = r'BIOLOGY\s+(\d{4})\s*[-:]?\s*([^:\n]{10,100})'
+    biology_matches = re.findall(biology_pattern, text, re.IGNORECASE)
+    
+    if biology_matches:
+        # Found BIOLOGY pattern, use it
+        for match in biology_matches:
+            code = f'BIO{match[0]}'
+            name = match[1].strip()
+            
+            # Clean up the name
+            name = name.replace('*', '').replace('Fall 2024', '').replace('Spring 2025', '').strip()
+            if name.startswith('- '):
+                name = name[2:]
+            
+            # Avoid duplicates
+            if code not in seen_courses:
+                seen_courses.add(code)
+                courses.append({
+                    'code': code,
+                    'name': f'Biology {match[0]} - {name}',
+                    'difficulty': 4,
+                    'credits': 4
+                })
+    else:
+        # Fallback to other patterns if BIOLOGY not found
+        course_patterns = [
+            r'BIO\s*(\d{4})\s*[-:]?\s*([^:\n]{10,100})',      # BIO1205 pattern
+            r'([A-Z]{2,4}[- ]?\d{3,4}[A-Z]?)\s*[-:]?\s*([^:\n]{10,80})',  # General course pattern
+            r'Course:\s*([^:\n]+)',
+            r'([A-Z]{2,4}\s+\d{3,4})\s*[-:]?\s*([^:\n]+)',
+        ]
+        
+        for pattern in course_patterns:
+            matches = re.findall(pattern, text, re.IGNORECASE)
+            for match in matches:
+                if len(match) == 2:
+                    # For BIO patterns, construct proper course code
+                    if pattern.startswith(r'BIO'):
+                        code = f'BIO{match[0]}'
+                        name = f'Biology {match[0]} - {match[1].strip()}'
+                    else:
+                        code = match[0].strip().upper()
+                        name = match[1].strip()
+                    
+                    # Clean up the name
+                    name = name.replace('*', '').replace('Fall 2024', '').replace('Spring 2025', '').strip()
+                    if name.startswith('- '):
+                        name = name[2:]
+                    
+                    # Avoid duplicates and filter out partial matches
+                    if code not in seen_courses and len(code) > 3 and not code.startswith('LOGY'):
+                        seen_courses.add(code)
+                        courses.append({
+                            'code': code,
+                            'name': name if name else f'{code} Course',
+                            'difficulty': 4 if 'BIO' in code else random.randint(3, 5),
+                            'credits': 4 if 'BIO' in code else random.randint(3, 4)
+                        })
+                elif len(match) == 1:
                     code = f'BIO{match[0]}'
-                    name = f'Biology {match[0]} - {match[1].strip()}'
-                else:
-                    code = match[0].strip().upper()
-                    name = match[1].strip()
-                
-                # Clean up the name
-                name = name.replace('*', '').replace('Fall 2024', '').strip()
-                if name.startswith('- '):
-                    name = name[2:]
-                
-                # Avoid duplicates
-                if code not in seen_courses:
-                    seen_courses.add(code)
-                    courses.append({
-                        'code': code,
-                        'name': name if name else f'{code} Course',
-                        'difficulty': 4,  # Biology courses are typically challenging
-                        'credits': 4
-                    })
-            elif len(match) == 1:
-                code = f'BIO{match[0]}'
-                if code not in seen_courses:
-                    seen_courses.add(code)
-                    courses.append({
-                        'code': code,
-                        'name': f'Biology {match[0]}',
-                        'difficulty': 4,
-                        'credits': 4
-                    })
+                    if code not in seen_courses:
+                        seen_courses.add(code)
+                        courses.append({
+                            'code': code,
+                            'name': f'Biology {match[0]}',
+                            'difficulty': 4,
+                            'credits': 4
+                        })
     
     # Enhanced deadline extraction for Biology syllabus
     deadline_patterns = [
