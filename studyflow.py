@@ -18,7 +18,7 @@ from reportlab.lib import colors
 from reportlab.lib.enums import TA_CENTER, TA_LEFT
 import base64
 
-# Page config with modern styling
+# Page config
 st.set_page_config(
     page_title="StudyFlow",
     page_icon="⚡",
@@ -26,7 +26,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Custom CSS for modern, highly legible design with uniform buttons
+# Enhanced CSS with completely uniform button styling
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
@@ -104,19 +104,7 @@ st.markdown("""
         border-color: rgba(108, 92, 231, 0.3);
     }
     
-    .setup-card h2 {
-        color: #ffffff;
-        margin-bottom: 1rem;
-        font-weight: 600;
-    }
-    
-    .setup-card h3 {
-        color: #ffffff;
-        margin-bottom: 1rem;
-        font-weight: 600;
-    }
-    
-    .setup-card h4 {
+    .setup-card h2, .setup-card h3, .setup-card h4 {
         color: #ffffff;
         margin-bottom: 1rem;
         font-weight: 600;
@@ -226,6 +214,14 @@ st.markdown("""
         box-shadow: 0 0 10px rgba(108, 92, 231, 0.5);
     }
     
+    .progress-text {
+        text-align: center;
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 1rem;
+        margin: 1rem 0;
+        font-weight: 500;
+    }
+    
     .export-section {
         background: rgba(255, 255, 255, 0.06);
         backdrop-filter: blur(15px);
@@ -240,12 +236,6 @@ st.markdown("""
         margin-bottom: 1rem;
         font-size: 1.5rem;
         font-weight: 600;
-    }
-    
-    .export-section p {
-        color: rgba(255, 255, 255, 0.9);
-        font-size: 1.1rem;
-        line-height: 1.6;
     }
     
     .email-section {
@@ -264,12 +254,6 @@ st.markdown("""
         font-weight: 600;
     }
     
-    .email-section p {
-        color: rgba(255, 255, 255, 0.9);
-        font-size: 1.1rem;
-        line-height: 1.6;
-    }
-    
     .email-instructions {
         background: rgba(255, 255, 255, 0.1);
         border-radius: 12px;
@@ -283,47 +267,6 @@ st.markdown("""
         margin-bottom: 0.5rem;
         font-size: 1.1rem;
         font-weight: 600;
-    }
-    
-    .email-instructions ol {
-        color: rgba(255, 255, 255, 0.9);
-        padding-left: 1.5rem;
-    }
-    
-    .email-instructions li {
-        margin: 0.5rem 0;
-        font-weight: 500;
-    }
-    
-    .email-button {
-        background: linear-gradient(135deg, #fd79a8, #fdcb6e);
-        color: white;
-        padding: 1rem 2rem;
-        border-radius: 50px;
-        border: none;
-        font-size: 1.1rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        text-decoration: none;
-        display: inline-block;
-        width: 100%;
-        text-align: center;
-        box-shadow: 0 4px 15px rgba(253, 121, 168, 0.3);
-    }
-    
-    .email-button:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 25px rgba(253, 121, 168, 0.4);
-        background: linear-gradient(135deg, #e84393, #f39c12);
-    }
-    
-    .email-button:disabled {
-        background: rgba(255, 255, 255, 0.2);
-        cursor: not-allowed;
-        transform: none;
-        box-shadow: none;
-        color: rgba(255, 255, 255, 0.5);
     }
     
     .download-first {
@@ -341,27 +284,47 @@ st.markdown("""
         font-weight: 600;
     }
     
-    .download-first p {
-        color: rgba(255, 255, 255, 0.9);
-        margin: 0.5rem 0;
-        font-weight: 500;
+    .social-proof {
+        text-align: center;
+        margin-top: 3rem;
+        padding: 2rem;
+        background: rgba(255, 255, 255, 0.06);
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.15);
     }
     
-    /* UNIFORM BUTTON STYLING - All buttons now match */
+    .social-proof h4 {
+        font-size: 1.3rem;
+        color: #6c5ce7;
+        margin-bottom: 1rem;
+        font-weight: 600;
+    }
+    
+    /* COMPLETELY UNIFORM BUTTON STYLING */
+    
+    /* Primary buttons (default Streamlit buttons) */
     .stButton > button {
         background: linear-gradient(135deg, #6c5ce7, #a29bfe) !important;
         color: white !important;
         border: none !important;
-        border-radius: 50px !important;
-        padding: 0.75rem 2rem !important;
+        border-radius: 12px !important;
+        padding: 0.75rem 1.5rem !important;
         font-weight: 600 !important;
         font-size: 1rem !important;
+        font-family: 'Inter', sans-serif !important;
         transition: all 0.3s ease !important;
         box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3) !important;
         text-transform: none !important;
-        letter-spacing: normal !important;
+        letter-spacing: 0.5px !important;
         width: 100% !important;
-        margin: 0.5rem 0 !important;
+        min-height: 48px !important;
+        cursor: pointer !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
     }
     
     .stButton > button:hover {
@@ -380,21 +343,37 @@ st.markdown("""
         box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.3) !important;
     }
     
-    /* Download buttons styling */
+    .stButton > button:disabled {
+        background: rgba(255, 255, 255, 0.1) !important;
+        color: rgba(255, 255, 255, 0.5) !important;
+        cursor: not-allowed !important;
+        transform: none !important;
+        box-shadow: none !important;
+    }
+    
+    /* Download buttons - green variant */
     .stDownloadButton > button {
         background: linear-gradient(135deg, #00b894, #00cec9) !important;
         color: white !important;
         border: none !important;
-        border-radius: 50px !important;
-        padding: 0.75rem 2rem !important;
+        border-radius: 12px !important;
+        padding: 0.75rem 1.5rem !important;
         font-weight: 600 !important;
         font-size: 1rem !important;
+        font-family: 'Inter', sans-serif !important;
         transition: all 0.3s ease !important;
         box-shadow: 0 4px 15px rgba(0, 184, 148, 0.3) !important;
         text-transform: none !important;
-        letter-spacing: normal !important;
+        letter-spacing: 0.5px !important;
         width: 100% !important;
-        margin: 0.5rem 0 !important;
+        min-height: 48px !important;
+        cursor: pointer !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
     }
     
     .stDownloadButton > button:hover {
@@ -413,51 +392,68 @@ st.markdown("""
         box-shadow: 0 0 0 3px rgba(0, 184, 148, 0.3) !important;
     }
     
-    /* Streamlit component styling with high contrast */
+    /* Custom email button */
+    .email-button {
+        background: linear-gradient(135deg, #fd79a8, #fdcb6e) !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 12px !important;
+        padding: 0.75rem 1.5rem !important;
+        font-weight: 600 !important;
+        font-size: 1rem !important;
+        font-family: 'Inter', sans-serif !important;
+        transition: all 0.3s ease !important;
+        box-shadow: 0 4px 15px rgba(253, 121, 168, 0.3) !important;
+        text-transform: none !important;
+        letter-spacing: 0.5px !important;
+        width: 100% !important;
+        min-height: 48px !important;
+        cursor: pointer !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        text-decoration: none !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+    }
+    
+    .email-button:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 8px 25px rgba(253, 121, 168, 0.4) !important;
+        background: linear-gradient(135deg, #e84393, #f39c12) !important;
+        text-decoration: none !important;
+    }
+    
+    .email-button:active {
+        transform: translateY(0) !important;
+        box-shadow: 0 4px 15px rgba(253, 121, 168, 0.3) !important;
+    }
+    
+    .email-button:focus {
+        outline: none !important;
+        box-shadow: 0 0 0 3px rgba(253, 121, 168, 0.3) !important;
+    }
+    
+    /* Form inputs styling */
     .stSelectbox > div > div {
         background: rgba(255, 255, 255, 0.9) !important;
         border: 2px solid rgba(255, 255, 255, 0.3) !important;
         border-radius: 12px !important;
         color: #000000 !important;
+        font-family: 'Inter', sans-serif !important;
+        font-weight: 500 !important;
     }
     
-    .stSelectbox > div > div > div {
-        color: #000000 !important;
-        font-weight: 500 !important;
+    .stSelectbox > div > div:focus-within {
+        border-color: #6c5ce7 !important;
+        box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.2) !important;
     }
     
     .stSelectbox label {
         color: #ffffff !important;
         font-weight: 600 !important;
-    }
-    
-    .stSlider > div > div > div {
-        background: rgba(255, 255, 255, 0.15);
-    }
-    
-    .stSlider label {
-        color: #ffffff !important;
-        font-weight: 600 !important;
-    }
-    
-    .stSlider > div > div > div > div {
-        color: #ffffff !important;
-        font-weight: 600 !important;
-    }
-    
-    .stSlider > div > div > div > div > div {
-        color: #ffffff !important;
-        font-weight: 600 !important;
-    }
-    
-    .stCheckbox > label {
-        color: #ffffff !important;
-        font-weight: 600 !important;
-    }
-    
-    .stCheckbox > label > div {
-        color: #ffffff !important;
-        font-weight: 600 !important;
+        font-family: 'Inter', sans-serif !important;
     }
     
     .stTextInput > div > div > input {
@@ -466,10 +462,9 @@ st.markdown("""
         border-radius: 12px !important;
         color: #000000 !important;
         font-weight: 500 !important;
-    }
-    
-    .stTextInput > div > div > input::placeholder {
-        color: rgba(0, 0, 0, 0.6) !important;
+        font-family: 'Inter', sans-serif !important;
+        padding: 0.75rem 1rem !important;
+        font-size: 1rem !important;
     }
     
     .stTextInput > div > div > input:focus {
@@ -481,78 +476,7 @@ st.markdown("""
     .stTextInput label {
         color: #ffffff !important;
         font-weight: 600 !important;
-    }
-    
-    .stMarkdown h1, .stMarkdown h2, .stMarkdown h3, .stMarkdown h4, .stMarkdown h5, .stMarkdown h6 {
-        color: #ffffff !important;
-        font-weight: 600 !important;
-    }
-    
-    .stMarkdown p {
-        color: rgba(255, 255, 255, 0.9) !important;
-        font-weight: 500 !important;
-    }
-    
-    .stMarkdown strong {
-        color: #ffffff !important;
-        font-weight: 600 !important;
-    }
-    
-    .stMarkdown {
-        color: rgba(255, 255, 255, 0.9) !important;
-    }
-    
-    .stMarkdown ul li {
-        color: rgba(255, 255, 255, 0.9) !important;
-        font-weight: 500 !important;
-    }
-    
-    .stMarkdown ol li {
-        color: rgba(255, 255, 255, 0.9) !important;
-        font-weight: 500 !important;
-    }
-    
-    /* File uploader styling */
-    .stFileUploader > div > div {
-        background: rgba(255, 255, 255, 0.1);
-        border: 2px dashed rgba(255, 255, 255, 0.3);
-        border-radius: 12px;
-        color: #ffffff !important;
-    }
-    
-    .stFileUploader label {
-        color: #ffffff !important;
-        font-weight: 600 !important;
-    }
-    
-    .stExpander {
-        background: rgba(255, 255, 255, 0.06);
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        border-radius: 12px;
-        margin: 0.5rem 0;
-    }
-    
-    .stExpander > div > div {
-        color: #ffffff;
-        font-weight: 500;
-    }
-    
-    .stSuccess {
-        background: rgba(0, 184, 148, 0.1);
-        border: 1px solid rgba(0, 184, 148, 0.3);
-        color: #00b894;
-    }
-    
-    .stWarning {
-        background: rgba(253, 203, 110, 0.1);
-        border: 1px solid rgba(253, 203, 110, 0.3);
-        color: #fdcb6e;
-    }
-    
-    .stError {
-        background: rgba(231, 76, 60, 0.1);
-        border: 1px solid rgba(231, 76, 60, 0.3);
-        color: #e74c3c;
+        font-family: 'Inter', sans-serif !important;
     }
     
     .stTextArea > div > div > textarea {
@@ -561,10 +485,9 @@ st.markdown("""
         border-radius: 12px !important;
         color: #000000 !important;
         font-weight: 500 !important;
-    }
-    
-    .stTextArea > div > div > textarea::placeholder {
-        color: rgba(0, 0, 0, 0.6) !important;
+        font-family: 'Inter', sans-serif !important;
+        padding: 0.75rem 1rem !important;
+        font-size: 1rem !important;
     }
     
     .stTextArea > div > div > textarea:focus {
@@ -576,63 +499,94 @@ st.markdown("""
     .stTextArea label {
         color: #ffffff !important;
         font-weight: 600 !important;
+        font-family: 'Inter', sans-serif !important;
     }
     
-    .stSpinner > div {
+    .stSlider label {
         color: #ffffff !important;
+        font-weight: 600 !important;
+        font-family: 'Inter', sans-serif !important;
     }
     
-    /* Progress text styling */
-    .progress-text {
-        text-align: center;
-        color: rgba(255, 255, 255, 0.9);
-        font-size: 1rem;
-        margin: 1rem 0;
-        font-weight: 500;
+    .stCheckbox > label {
+        color: #ffffff !important;
+        font-weight: 600 !important;
+        font-family: 'Inter', sans-serif !important;
     }
     
-    /* Social proof section */
-    .social-proof {
-        text-align: center;
-        margin-top: 3rem;
-        padding: 2rem;
-        background: rgba(255, 255, 255, 0.06);
-        border-radius: 16px;
-        border: 1px solid rgba(255, 255, 255, 0.15);
+    .stFileUploader > div > div {
+        background: rgba(255, 255, 255, 0.1) !important;
+        border: 2px dashed rgba(255, 255, 255, 0.3) !important;
+        border-radius: 12px !important;
+        color: #ffffff !important;
+        font-family: 'Inter', sans-serif !important;
+        font-weight: 500 !important;
+        padding: 2rem !important;
+        text-align: center !important;
     }
     
-    .social-proof h4 {
-        font-size: 1.3rem;
-        color: #6c5ce7;
-        margin-bottom: 1rem;
-        font-weight: 600;
+    .stFileUploader label {
+        color: #ffffff !important;
+        font-weight: 600 !important;
+        font-family: 'Inter', sans-serif !important;
     }
     
-    .social-proof p {
-        color: rgba(255, 255, 255, 0.9);
-        font-size: 1rem;
-        line-height: 1.6;
-        margin: 0.5rem 0;
-        font-weight: 500;
+    .stExpander {
+        background: rgba(255, 255, 255, 0.06) !important;
+        border: 1px solid rgba(255, 255, 255, 0.15) !important;
+        border-radius: 12px !important;
+        margin: 0.5rem 0 !important;
+        font-family: 'Inter', sans-serif !important;
     }
     
-    /* Force all interactive elements to have proper contrast */
-    div[data-testid="stMarkdownContainer"] p {
+    .stExpander > div > div {
+        color: #ffffff !important;
+        font-weight: 500 !important;
+        font-family: 'Inter', sans-serif !important;
+    }
+    
+    /* Alert styling */
+    .stSuccess {
+        background: rgba(0, 184, 148, 0.1) !important;
+        border: 1px solid rgba(0, 184, 148, 0.3) !important;
+        color: #00b894 !important;
+        font-family: 'Inter', sans-serif !important;
+    }
+    
+    .stWarning {
+        background: rgba(253, 203, 110, 0.1) !important;
+        border: 1px solid rgba(253, 203, 110, 0.3) !important;
+        color: #fdcb6e !important;
+        font-family: 'Inter', sans-serif !important;
+    }
+    
+    .stError {
+        background: rgba(231, 76, 60, 0.1) !important;
+        border: 1px solid rgba(231, 76, 60, 0.3) !important;
+        color: #e74c3c !important;
+        font-family: 'Inter', sans-serif !important;
+    }
+    
+    /* Text styling */
+    .stMarkdown h1, .stMarkdown h2, .stMarkdown h3, .stMarkdown h4, .stMarkdown h5, .stMarkdown h6 {
+        color: #ffffff !important;
+        font-weight: 600 !important;
+        font-family: 'Inter', sans-serif !important;
+    }
+    
+    .stMarkdown p, .stMarkdown div {
         color: rgba(255, 255, 255, 0.9) !important;
         font-weight: 500 !important;
+        font-family: 'Inter', sans-serif !important;
     }
     
-    /* Dropdown menu styling */
-    .stSelectbox > div > div > div[role="listbox"] {
-        background: rgba(255, 255, 255, 0.95) !important;
-        color: #000000 !important;
-    }
-    
-    .stSelectbox > div > div > div[role="listbox"] > div {
-        color: #000000 !important;
+    .stMarkdown ul li, .stMarkdown ol li {
+        color: rgba(255, 255, 255, 0.9) !important;
         font-weight: 500 !important;
+        font-family: 'Inter', sans-serif !important;
     }
     
+    /* Responsive design */
     @media (max-width: 768px) {
         .hero-title {
             font-size: 2.5rem;
@@ -653,6 +607,11 @@ st.markdown("""
         
         .hero-section {
             padding: 2rem 1rem;
+        }
+        
+        .stButton > button, .stDownloadButton > button, .email-button {
+            font-size: 0.9rem !important;
+            padding: 0.65rem 1.25rem !important;
         }
     }
 </style>
@@ -1387,7 +1346,7 @@ def show_upload_step():
     col1, col2 = st.columns([1, 1])
     
     with col1:
-        if st.button("📱 Skip - I'll add courses manually", use_container_width=True):
+        if st.button("📱 Skip - I'll add courses manually"):
             st.session_state.user_data = {
                 'courses': [
                     {'code': 'DEMO101', 'name': 'Intro to College', 'difficulty': 3, 'credits': 3},
@@ -1434,12 +1393,12 @@ def show_upload_step():
                     for course in courses[:3]:  # Show first 3
                         st.markdown(f"• {course['code']} - {course['name']}")
                 
-                if st.button("🚀 Looks good - Continue", type="primary", use_container_width=True):
+                if st.button("🚀 Looks good - Continue", type="primary"):
                     st.session_state.step = 2
                     st.rerun()
 
 def show_preferences_step():
-    """Step 2: Quick preferences setup (no email required)"""
+    """Step 2: Quick preferences setup"""
     st.markdown("""
     <div class="setup-card">
         <h2><span class="step-number">2</span>Quick Setup</h2>
@@ -1476,8 +1435,8 @@ def show_preferences_step():
     <p class="progress-text">Step 2 of 3</p>
     """, unsafe_allow_html=True)
     
-    if st.button("⚡ Generate My Schedule", type="primary", use_container_width=True):
-        # Save preferences (no email here)
+    if st.button("⚡ Generate My Schedule", type="primary"):
+        # Save preferences
         st.session_state.user_data.update({
             'wake_time': wake_time,
             'sleep_time': sleep_time,
@@ -1593,7 +1552,7 @@ def show_schedule_step():
         st.session_state.pdf_data = pdf_data
         st.session_state.pdf_generated = True
         
-        # Export buttons row 1: PDF and Calendar (now with uniform styling)
+        # Export buttons row 1: PDF and Calendar
         col1, col2 = st.columns(2)
         
         with col1:
@@ -1602,8 +1561,7 @@ def show_schedule_step():
                 data=pdf_data,
                 file_name=f"StudyFlow_Schedule_{datetime.now().strftime('%Y%m%d')}.pdf",
                 mime="application/pdf",
-                help="Download a beautifully formatted PDF of your schedule",
-                use_container_width=True
+                help="Download a beautifully formatted PDF of your schedule"
             )
         
         with col2:
@@ -1612,8 +1570,7 @@ def show_schedule_step():
                 data=ics_content,
                 file_name=f"StudyFlow_Calendar_{datetime.now().strftime('%Y%m%d')}.ics",
                 mime="text/calendar",
-                help="Import this into Google Calendar, Outlook, or Apple Calendar",
-                use_container_width=True
+                help="Import this into Google Calendar, Outlook, or Apple Calendar"
             )
         
         # Enhanced email section with attachment workflow
@@ -1628,11 +1585,10 @@ def show_schedule_step():
         email_input = st.text_input(
             "Email Address",
             placeholder="your.email@college.edu",
-            help="Enter your email to create a ready-to-send message with attachment instructions",
-            label_visibility="collapsed"
+            help="Enter your email to create a ready-to-send message with attachment instructions"
         )
         
-        if st.button("📧 Create Email with PDF Instructions", type="primary", use_container_width=True, disabled=not email_input):
+        if st.button("📧 Create Email with PDF Instructions", type="primary", disabled=not email_input):
             if email_input:
                 # Create email content with attachment instructions
                 email_subject, email_body = create_email_content_with_attachment_instructions(
@@ -1682,34 +1638,32 @@ def show_schedule_step():
                     st.markdown("**Body Preview:**")
                     st.text_area("", value=email_body[:1000] + "..." if len(email_body) > 1000 else email_body, height=200, disabled=True)
                     
-                    # Additional download buttons in preview (now with uniform styling)
+                    # Additional download buttons in preview
                     col_a, col_b = st.columns(2)
                     with col_a:
                         st.download_button(
                             label="📄 Download PDF (for attachment)",
                             data=pdf_data,
                             file_name=f"StudyFlow_Schedule_{datetime.now().strftime('%Y%m%d')}.pdf",
-                            mime="application/pdf",
-                            use_container_width=True
+                            mime="application/pdf"
                         )
                     with col_b:
                         st.download_button(
                             label="📅 Download Calendar (for attachment)",
                             data=ics_content,
                             file_name=f"StudyFlow_Calendar_{datetime.now().strftime('%Y%m%d')}.ics",
-                            mime="text/calendar",
-                            use_container_width=True
+                            mime="text/calendar"
                         )
             else:
                 st.warning("Please enter your email address first!")
         
-        # Additional options with uniform button styling
+        # Additional options
         st.markdown("### 🔧 More Options")
         
         col1, col2 = st.columns(2)
         
         with col1:
-            if st.button("🔄 Modify Schedule", use_container_width=True):
+            if st.button("🔄 Modify Schedule"):
                 st.session_state.step = 2
                 st.rerun()
         
@@ -1728,8 +1682,7 @@ def show_schedule_step():
                 data=json.dumps(save_data, indent=2),
                 file_name=f"StudyFlow_Data_{datetime.now().strftime('%Y%m%d')}.json",
                 mime="application/json",
-                help="Save your data to import later",
-                use_container_width=True
+                help="Save your data to import later"
             )
     
     # Progress complete
