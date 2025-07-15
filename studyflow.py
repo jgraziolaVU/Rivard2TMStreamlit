@@ -664,8 +664,16 @@ def generate_2025_schedule_proposal(proposal_type, buffer_percent, attention_spa
                 'fixed': True
             })
         
-        # Sort activities by time (convert to 24-hour for sorting, then back to 12-hour)
-        schedule[date_str].sort(key=lambda x: convert_to_24hour(x['time']))
+        # Sort activities by converting to 24-hour for sorting, keeping display in 12-hour
+        def time_sort_key(activity):
+            time_24h = convert_to_24hour(activity['time'])
+            try:
+                hour, minute = map(int, time_24h.split(':'))
+                return hour * 60 + minute
+            except:
+                return 0
+        
+        schedule[date_str].sort(key=time_sort_key)
     
     return dict(schedule)
 
@@ -752,19 +760,26 @@ if st.session_state.schedule_proposals:
                         duration = f" ({activity.get('duration', 30)} min)" if 'duration' in activity else ""
                         course_info = f" [{activity.get('course', '')}]" if activity.get('course') else ""
                         
+                        # Ensure time is in 12-hour format
+                        display_time = activity['time']
+                        if ':' in display_time and ('AM' not in display_time and 'PM' not in display_time):
+                            display_time = format_time_12hour(display_time)
+                        
                         # Color coding for different activity types
                         if activity['type'] == 'study':
-                            st.write(f"📚 **{activity['time']}** - {activity['activity']}{course_info}{duration}")
+                            st.write(f"📚 **{display_time}** - {activity['activity']}{course_info}{duration}")
                         elif activity['type'] == 'break' and '📱' in activity.get('activity', ''):
-                            st.write(f"📱 **{activity['time']}** - {activity['activity']}{duration}")
+                            st.write(f"📱 **{display_time}** - {activity['activity']}{duration}")
                         elif activity['type'] == 'free':
-                            st.write(f"🎉 **{activity['time']}** - {activity['activity']}{duration}")
+                            st.write(f"🎉 **{display_time}** - {activity['activity']}{duration}")
                         elif activity['type'] == 'meal':
-                            st.write(f"🍽️ **{activity['time']}** - {activity['activity']}{duration}")
+                            st.write(f"🍽️ **{display_time}** - {activity['activity']}{duration}")
                         elif activity['type'] == 'deadline':
-                            st.write(f"⚠️ **{activity['time']}** - {activity['activity']}")
+                            st.write(f"⚠️ **{display_time}** - {activity['activity']}")
+                        elif activity['type'] == 'review':
+                            st.write(f"📖 **{display_time}** - {activity['activity']}{duration}")
                         else:
-                            st.write(f"• **{activity['time']}** - {activity['activity']}{duration}")
+                            st.write(f"• **{display_time}** - {activity['activity']}{duration}")
             
             # Select button
             if st.button(f"✅ Select {proposal['type'].title()} Schedule", key=f"select_{i}"):
