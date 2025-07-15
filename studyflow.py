@@ -302,7 +302,7 @@ st.markdown("""
     
     /* COMPLETELY UNIFORM BUTTON STYLING - ALL BUTTONS IDENTICAL SHAPE */
     
-    /* Universal button base styling */
+    /* Universal button base styling - FIXED for better responsiveness */
     .stButton > button,
     .stDownloadButton > button,
     .email-button {
@@ -321,9 +321,9 @@ st.markdown("""
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
-        white-space: nowrap !important;
-        overflow: hidden !important;
-        text-overflow: ellipsis !important;
+        white-space: normal !important;
+        text-align: center !important;
+        word-break: break-word !important;
         color: white !important;
     }
     
@@ -403,10 +403,10 @@ st.markdown("""
         box-shadow: 0 0 0 3px rgba(253, 121, 168, 0.3) !important;
     }
     
-    /* Form inputs styling - matching button border-radius */
+    /* Form inputs styling - FIXED selectbox label visibility */
     .stSelectbox > div > div {
-        background: rgba(255, 255, 255, 0.9) !important;
-        border: 2px solid rgba(255, 255, 255, 0.3) !important;
+        background: rgba(255, 255, 255, 0.95) !important;
+        border: 2px solid rgba(200, 200, 200, 0.5) !important;
         border-radius: 50px !important;
         color: #000000 !important;
         font-family: 'Inter', sans-serif !important;
@@ -420,9 +420,14 @@ st.markdown("""
     }
     
     .stSelectbox label {
-        color: #ffffff !important;
+        color: #000000 !important;
         font-weight: 600 !important;
         font-family: 'Inter', sans-serif !important;
+        background: rgba(255, 255, 255, 0.9) !important;
+        padding: 0.25rem 0.5rem !important;
+        border-radius: 8px !important;
+        display: inline-block !important;
+        margin-bottom: 0.5rem !important;
     }
     
     .stTextInput > div > div > input {
@@ -555,7 +560,7 @@ st.markdown("""
         font-family: 'Inter', sans-serif !important;
     }
     
-    /* Responsive design */
+    /* Responsive design - IMPROVED mobile button handling */
     @media (max-width: 768px) {
         .hero-title {
             font-size: 2.5rem;
@@ -579,9 +584,28 @@ st.markdown("""
         }
         
         .stButton > button, .stDownloadButton > button, .email-button {
-            font-size: 0.9rem !important;
+            font-size: 0.95rem !important;
             padding: 0.65rem 1.25rem !important;
             border-radius: 40px !important;
+            white-space: normal !important;
+            word-break: break-word !important;
+            text-align: center !important;
+            min-height: 44px !important;
+        }
+        
+        .stDownloadButton, .stButton {
+            width: 100% !important;
+            margin-bottom: 0.75rem !important;
+        }
+        
+        /* Stack buttons vertically on mobile for better UX */
+        .stColumns {
+            flex-direction: column !important;
+        }
+        
+        .stColumn {
+            width: 100% !important;
+            margin-bottom: 1rem !important;
         }
     }
 </style>
