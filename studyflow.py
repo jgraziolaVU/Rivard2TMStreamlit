@@ -26,113 +26,147 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Custom CSS for modern, mobile-first design
+# Custom CSS for modern, legible design
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
     
     .stApp {
         font-family: 'Inter', sans-serif;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
         min-height: 100vh;
+        color: #ffffff;
     }
     
     .main-container {
-        background: white;
-        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(20px);
+        border-radius: 24px;
         padding: 2rem;
         margin: 1rem;
-        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-        backdrop-filter: blur(10px);
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.1);
     }
     
     .hero-section {
         text-align: center;
-        padding: 3rem 1rem;
-        background: linear-gradient(135deg, #ff6b6b, #ffd93d);
+        padding: 4rem 2rem;
+        background: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%);
         border-radius: 20px;
         margin-bottom: 2rem;
-        color: white;
+        color: #ffffff;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .hero-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, transparent 100%);
+        pointer-events: none;
     }
     
     .hero-title {
-        font-size: 3rem;
+        font-size: 3.5rem;
         font-weight: 700;
         margin-bottom: 1rem;
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        text-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        position: relative;
+        z-index: 1;
     }
     
     .hero-subtitle {
-        font-size: 1.2rem;
+        font-size: 1.3rem;
         font-weight: 400;
-        opacity: 0.9;
+        opacity: 0.95;
+        position: relative;
+        z-index: 1;
     }
     
     .setup-card {
-        background: #f8f9ff;
-        border-radius: 15px;
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(15px);
+        border-radius: 16px;
         padding: 2rem;
-        margin: 1rem 0;
-        border: 1px solid #e0e6ff;
-        transition: transform 0.2s ease;
+        margin: 1.5rem 0;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        transition: all 0.3s ease;
+        color: #ffffff;
     }
     
     .setup-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        transform: translateY(-4px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        border-color: rgba(108, 92, 231, 0.3);
+    }
+    
+    .setup-card h2 {
+        color: #ffffff;
+        margin-bottom: 1rem;
+    }
+    
+    .setup-card p {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 1.1rem;
+        line-height: 1.6;
     }
     
     .step-number {
         display: inline-block;
-        width: 40px;
-        height: 40px;
-        background: linear-gradient(135deg, #667eea, #764ba2);
+        width: 45px;
+        height: 45px;
+        background: linear-gradient(135deg, #6c5ce7, #a29bfe);
         color: white;
         border-radius: 50%;
         text-align: center;
-        line-height: 40px;
+        line-height: 45px;
         font-weight: 600;
         margin-right: 15px;
-    }
-    
-    .schedule-card {
-        background: white;
-        border-radius: 15px;
-        padding: 1.5rem;
-        margin: 1rem 0;
-        border-left: 4px solid #667eea;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        font-size: 1.1rem;
+        box-shadow: 0 4px 12px rgba(108, 92, 231, 0.3);
     }
     
     .activity-item {
         display: flex;
         align-items: center;
-        padding: 0.75rem;
-        margin: 0.5rem 0;
-        border-radius: 10px;
-        background: #f8f9ff;
-        border-left: 3px solid #667eea;
+        padding: 1rem;
+        margin: 0.75rem 0;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.06);
+        border-left: 4px solid #6c5ce7;
+        backdrop-filter: blur(10px);
+        transition: all 0.2s ease;
+    }
+    
+    .activity-item:hover {
+        background: rgba(255, 255, 255, 0.1);
+        transform: translateX(4px);
     }
     
     .time-badge {
-        background: #667eea;
+        background: linear-gradient(135deg, #6c5ce7, #a29bfe);
         color: white;
-        padding: 0.25rem 0.75rem;
-        border-radius: 20px;
-        font-size: 0.85rem;
-        font-weight: 500;
+        padding: 0.5rem 1rem;
+        border-radius: 25px;
+        font-size: 0.9rem;
+        font-weight: 600;
         margin-right: 1rem;
-        min-width: 80px;
+        min-width: 90px;
         text-align: center;
+        box-shadow: 0 2px 8px rgba(108, 92, 231, 0.3);
     }
     
     .export-button {
-        background: linear-gradient(135deg, #667eea, #764ba2);
+        background: linear-gradient(135deg, #6c5ce7, #a29bfe);
         color: white;
-        padding: 0.75rem 1.5rem;
+        padding: 1rem 2rem;
         border-radius: 50px;
         border: none;
-        font-size: 1rem;
+        font-size: 1.1rem;
         font-weight: 600;
         cursor: pointer;
         transition: all 0.3s ease;
@@ -141,88 +175,295 @@ st.markdown("""
         margin: 0.5rem;
         width: 100%;
         text-align: center;
+        box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3);
     }
     
     .export-button:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(108, 92, 231, 0.4);
+        background: linear-gradient(135deg, #5a4fcf, #8b7dff);
     }
     
     .export-button.secondary {
-        background: linear-gradient(135deg, #4ecdc4, #44a08d);
+        background: linear-gradient(135deg, #00b894, #00cec9);
+        box-shadow: 0 4px 15px rgba(0, 184, 148, 0.3);
     }
     
-    .export-button.danger {
-        background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+    .export-button.secondary:hover {
+        background: linear-gradient(135deg, #008f7a, #00a8a3);
+        box-shadow: 0 8px 25px rgba(0, 184, 148, 0.4);
+    }
+    
+    .export-button.email {
+        background: linear-gradient(135deg, #fd79a8, #fdcb6e);
+        box-shadow: 0 4px 15px rgba(253, 121, 168, 0.3);
+    }
+    
+    .export-button.email:hover {
+        background: linear-gradient(135deg, #e84393, #f39c12);
+        box-shadow: 0 8px 25px rgba(253, 121, 168, 0.4);
     }
     
     .stats-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-        gap: 1rem;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 1.5rem;
         margin: 2rem 0;
     }
     
     .stat-card {
-        background: white;
-        padding: 1.5rem;
-        border-radius: 15px;
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(15px);
+        padding: 2rem;
+        border-radius: 16px;
         text-align: center;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        transition: all 0.3s ease;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+        border-color: rgba(108, 92, 231, 0.3);
     }
     
     .stat-number {
-        font-size: 2rem;
+        font-size: 2.5rem;
         font-weight: 700;
-        color: #667eea;
+        color: #6c5ce7;
         display: block;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     }
     
     .stat-label {
-        font-size: 0.9rem;
-        color: #666;
+        font-size: 1rem;
+        color: rgba(255, 255, 255, 0.8);
         margin-top: 0.5rem;
+        font-weight: 500;
     }
     
     .progress-bar {
-        height: 6px;
-        background: #e0e6ff;
-        border-radius: 3px;
+        height: 8px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 4px;
         overflow: hidden;
-        margin: 1rem 0;
+        margin: 1.5rem 0;
     }
     
     .progress-fill {
         height: 100%;
-        background: linear-gradient(90deg, #667eea, #764ba2);
+        background: linear-gradient(90deg, #6c5ce7, #a29bfe);
         transition: width 0.3s ease;
+        box-shadow: 0 0 10px rgba(108, 92, 231, 0.5);
     }
     
     .export-section {
-        background: #f8f9ff;
-        border-radius: 15px;
+        background: rgba(255, 255, 255, 0.06);
+        backdrop-filter: blur(15px);
+        border-radius: 16px;
         padding: 2rem;
         margin: 2rem 0;
-        border: 1px solid #e0e6ff;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+    
+    .export-section h3 {
+        color: #ffffff;
+        margin-bottom: 1rem;
+        font-size: 1.5rem;
+    }
+    
+    .export-section p {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 1.1rem;
+        line-height: 1.6;
+    }
+    
+    .email-section {
+        background: rgba(253, 121, 168, 0.1);
+        backdrop-filter: blur(15px);
+        border-radius: 16px;
+        padding: 2rem;
+        margin: 1.5rem 0;
+        border: 2px solid rgba(253, 121, 168, 0.3);
+    }
+    
+    .email-section h4 {
+        color: #fd79a8;
+        margin-bottom: 1rem;
+        font-size: 1.3rem;
+    }
+    
+    .email-section p {
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 1.1rem;
+        line-height: 1.6;
     }
     
     .email-input {
         width: 100%;
-        padding: 0.75rem;
-        border: 2px solid #e0e6ff;
-        border-radius: 10px;
+        padding: 1rem;
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
         font-size: 1rem;
         margin-bottom: 1rem;
+        font-family: 'Inter', sans-serif;
+        background: rgba(255, 255, 255, 0.1);
+        color: #ffffff;
+        backdrop-filter: blur(10px);
     }
     
     .email-input:focus {
         outline: none;
-        border-color: #667eea;
+        border-color: #6c5ce7;
+        box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.2);
+        background: rgba(255, 255, 255, 0.15);
+    }
+    
+    .email-input::placeholder {
+        color: rgba(255, 255, 255, 0.6);
+    }
+    
+    .email-button {
+        background: linear-gradient(135deg, #fd79a8, #fdcb6e);
+        color: white;
+        padding: 1rem 2rem;
+        border-radius: 50px;
+        border: none;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+        width: 100%;
+        text-align: center;
+        box-shadow: 0 4px 15px rgba(253, 121, 168, 0.3);
+    }
+    
+    .email-button:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(253, 121, 168, 0.4);
+        background: linear-gradient(135deg, #e84393, #f39c12);
+    }
+    
+    .email-button:disabled {
+        background: rgba(255, 255, 255, 0.2);
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+        color: rgba(255, 255, 255, 0.5);
+    }
+    
+    /* Streamlit component styling */
+    .stSelectbox > div > div {
+        background: rgba(255, 255, 255, 0.1);
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        color: #ffffff;
+    }
+    
+    .stSlider > div > div > div {
+        background: rgba(255, 255, 255, 0.1);
+    }
+    
+    .stCheckbox > label {
+        color: #ffffff !important;
+    }
+    
+    .stTextInput > div > div > input {
+        background: rgba(255, 255, 255, 0.1);
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        color: #ffffff;
+    }
+    
+    .stTextInput > div > div > input:focus {
+        border-color: #6c5ce7;
+        box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.2);
+    }
+    
+    .stButton > button {
+        background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+        color: white;
+        border: none;
+        border-radius: 50px;
+        padding: 0.75rem 2rem;
+        font-weight: 600;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3);
+    }
+    
+    .stButton > button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(108, 92, 231, 0.4);
+        background: linear-gradient(135deg, #5a4fcf, #8b7dff);
+    }
+    
+    .stExpander {
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 12px;
+        margin: 0.5rem 0;
+    }
+    
+    .stExpander > div > div {
+        color: #ffffff;
+    }
+    
+    .stSuccess {
+        background: rgba(0, 184, 148, 0.1);
+        border: 1px solid rgba(0, 184, 148, 0.3);
+        color: #00b894;
+    }
+    
+    .stWarning {
+        background: rgba(253, 203, 110, 0.1);
+        border: 1px solid rgba(253, 203, 110, 0.3);
+        color: #fdcb6e;
+    }
+    
+    .stError {
+        background: rgba(231, 76, 60, 0.1);
+        border: 1px solid rgba(231, 76, 60, 0.3);
+        color: #e74c3c;
+    }
+    
+    /* Progress text styling */
+    .progress-text {
+        text-align: center;
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 1rem;
+        margin: 1rem 0;
+    }
+    
+    /* Social proof section */
+    .social-proof {
+        text-align: center;
+        margin-top: 3rem;
+        padding: 2rem;
+        background: rgba(255, 255, 255, 0.06);
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+    
+    .social-proof h4 {
+        font-size: 1.3rem;
+        color: #6c5ce7;
+        margin-bottom: 1rem;
+        font-weight: 600;
+    }
+    
+    .social-proof p {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 1rem;
+        line-height: 1.6;
+        margin: 0.5rem 0;
     }
     
     @media (max-width: 768px) {
         .hero-title {
-            font-size: 2rem;
+            font-size: 2.5rem;
         }
         
         .main-container {
@@ -231,11 +472,15 @@ st.markdown("""
         }
         
         .setup-card {
-            padding: 1rem;
+            padding: 1.5rem;
         }
         
         .stats-grid {
             grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .hero-section {
+            padding: 2rem 1rem;
         }
     }
 </style>
@@ -250,8 +495,6 @@ if 'schedule_ready' not in st.session_state:
     st.session_state.schedule_ready = False
 if 'final_schedule' not in st.session_state:
     st.session_state.final_schedule = None
-if 'user_email' not in st.session_state:
-    st.session_state.user_email = ""
 
 def extract_text_from_file(file):
     """Extract text from uploaded file"""
@@ -465,7 +708,7 @@ def generate_pdf_schedule(schedule_data, user_data):
         fontSize=24,
         spaceAfter=30,
         alignment=TA_CENTER,
-        textColor=colors.HexColor('#667eea')
+        textColor=colors.HexColor('#6c5ce7')
     )
     
     subtitle_style = ParagraphStyle(
@@ -474,7 +717,7 @@ def generate_pdf_schedule(schedule_data, user_data):
         fontSize=14,
         spaceAfter=20,
         alignment=TA_CENTER,
-        textColor=colors.HexColor('#764ba2')
+        textColor=colors.HexColor('#a29bfe')
     )
     
     heading_style = ParagraphStyle(
@@ -482,7 +725,7 @@ def generate_pdf_schedule(schedule_data, user_data):
         parent=styles['Heading2'],
         fontSize=16,
         spaceAfter=12,
-        textColor=colors.HexColor('#667eea')
+        textColor=colors.HexColor('#6c5ce7')
     )
     
     # Build the story
@@ -536,7 +779,7 @@ def generate_pdf_schedule(schedule_data, user_data):
         
         course_table = Table(course_data, colWidths=[1.5*inch, 2.5*inch, 1*inch, 0.8*inch])
         course_table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#667eea')),
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#6c5ce7')),
             ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
             ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
             ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
@@ -567,7 +810,7 @@ def generate_pdf_schedule(schedule_data, user_data):
         
         deadline_table = Table(deadline_data, colWidths=[1*inch, 2*inch, 1*inch, 1*inch, 0.8*inch])
         deadline_table.setStyle(TableStyle([
-            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#ff6b6b')),
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#fd79a8')),
             ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
             ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
             ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
@@ -596,7 +839,7 @@ def generate_pdf_schedule(schedule_data, user_data):
                 parent=styles['Heading3'],
                 fontSize=14,
                 spaceAfter=6,
-                textColor=colors.HexColor('#667eea')
+                textColor=colors.HexColor('#6c5ce7')
             )))
             
             daily_schedule = schedule_data[date_str]
@@ -913,7 +1156,7 @@ def show_upload_step():
                     st.rerun()
 
 def show_preferences_step():
-    """Step 2: Quick preferences setup"""
+    """Step 2: Quick preferences setup (no email required)"""
     st.markdown("""
     <div class="setup-card">
         <h2><span class="step-number">2</span>Quick Setup</h2>
@@ -928,15 +1171,11 @@ def show_preferences_step():
         wake_time = st.slider("Wake up time", 6, 11, 8, format="%d:00")
         sleep_time = st.slider("Bedtime", 10, 2, 11, format="%d:00")
         
-        st.markdown("**📧 Contact Info**")
-        email = st.text_input("Email (for sending schedule)", placeholder="your.email@college.edu")
-        st.session_state.user_email = email
-    
-    with col2:
         st.markdown("**📱 Study Style**")
         attention_span = st.slider("Focus time (minutes)", 15, 60, 25)
         procrastination = st.slider("Procrastination buffer", 20, 80, 40, format="%d%%")
-        
+    
+    with col2:
         st.markdown("**🎯 Preferences**")
         schedule_type = st.selectbox(
             "Schedule intensity",
@@ -951,11 +1190,11 @@ def show_preferences_step():
     <div class="progress-bar">
         <div class="progress-fill" style="width: 66%"></div>
     </div>
-    <p style="text-align: center; color: #666;">Step 2 of 3</p>
+    <p class="progress-text">Step 2 of 3</p>
     """, unsafe_allow_html=True)
     
     if st.button("⚡ Generate My Schedule", type="primary", use_container_width=True):
-        # Save preferences
+        # Save preferences (no email here)
         st.session_state.user_data.update({
             'wake_time': wake_time,
             'sleep_time': sleep_time,
@@ -963,8 +1202,7 @@ def show_preferences_step():
             'procrastination': procrastination,
             'schedule_type': schedule_type,
             'include_breaks': include_breaks,
-            'include_meals': include_meals,
-            'email': email
+            'include_meals': include_meals
         })
         
         # Generate schedule
@@ -979,7 +1217,7 @@ def show_preferences_step():
             st.rerun()
 
 def show_schedule_step():
-    """Step 3: Beautiful schedule display with full export functionality"""
+    """Step 3: Beautiful schedule display with email input in export section"""
     st.markdown("""
     <div class="setup-card">
         <h2><span class="step-number">3</span>Your Personalized Schedule</h2>
@@ -1031,24 +1269,24 @@ def show_schedule_step():
                     for activity in daily_schedule:
                         # Color coding based on activity type
                         if activity['type'] == 'study':
-                            color = '#667eea'
+                            color = '#6c5ce7'
                         elif activity['type'] == 'meal':
-                            color = '#ffd93d'
+                            color = '#fdcb6e'
                         elif activity['type'] == 'break':
-                            color = '#ff6b6b'
+                            color = '#fd79a8'
                         elif activity['type'] == 'free':
-                            color = '#4ecdc4'
+                            color = '#00b894'
                         elif activity['type'] == 'deadline':
-                            color = '#e74c3c'
+                            color = '#e17055'
                         else:
-                            color = '#95a5a6'
+                            color = '#a29bfe'
                         
                         duration_text = f" ({activity.get('duration', 30)} min)" if activity.get('duration') else ""
                         
                         st.markdown(f"""
                         <div class="activity-item">
                             <div class="time-badge" style="background: {color};">{activity['time']}</div>
-                            <div>{activity['activity']}{duration_text}</div>
+                            <div style="color: white;">{activity['activity']}{duration_text}</div>
                         </div>
                         """, unsafe_allow_html=True)
     
@@ -1070,11 +1308,8 @@ def show_schedule_step():
         # Generate ICS
         ics_content = generate_ics_calendar(st.session_state.final_schedule, st.session_state.user_data)
         
-        # Create email content
-        email_subject, email_body = create_email_content(st.session_state.final_schedule, st.session_state.user_data)
-        
-        # Export buttons
-        col1, col2, col3 = st.columns(3)
+        # Export buttons row 1: PDF and Calendar
+        col1, col2 = st.columns(2)
         
         with col1:
             st.download_button(
@@ -1096,21 +1331,47 @@ def show_schedule_step():
                 use_container_width=True
             )
         
-        with col3:
-            user_email = st.session_state.user_email
-            if user_email:
-                mailto_url = f"mailto:{user_email}?subject={urllib.parse.quote(email_subject)}&body={urllib.parse.quote(email_body)}"
+        # Email section with input
+        st.markdown("""
+        <div class="email-section">
+            <h4>📧 Email Your Schedule</h4>
+            <p>Enter your email below to send your complete schedule with tips and previews!</p>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # Email input and send button
+        email_input = st.text_input(
+            "Email Address",
+            placeholder="your.email@college.edu",
+            help="We'll create a ready-to-send email with your complete schedule",
+            label_visibility="collapsed"
+        )
+        
+        if st.button("📧 Send Schedule to Email", type="primary", use_container_width=True, disabled=not email_input):
+            if email_input:
+                # Create email content
+                email_subject, email_body = create_email_content(st.session_state.final_schedule, st.session_state.user_data)
+                
+                # Create mailto link
+                mailto_url = f"mailto:{email_input}?subject={urllib.parse.quote(email_subject)}&body={urllib.parse.quote(email_body)}"
+                
+                # Show success message and link
+                st.success(f"📧 Email ready to send to {email_input}!")
                 st.markdown(f"""
-                <a href="{mailto_url}" target="_blank" class="export-button">
-                    📧 Email Schedule
-                </a>
-                """, unsafe_allow_html=True)
-            else:
-                st.markdown("""
-                <div style="background: #fff3cd; padding: 1rem; border-radius: 10px; border: 1px solid #ffeaa7;">
-                    <p style="margin: 0; color: #856404;">Add your email in step 2 to enable email export!</p>
+                <div style="text-align: center; margin: 1rem 0;">
+                    <a href="{mailto_url}" target="_blank" class="email-button">
+                        🚀 Open Email Client & Send
+                    </a>
                 </div>
                 """, unsafe_allow_html=True)
+                
+                # Show email preview
+                with st.expander("📧 Email Preview"):
+                    st.markdown(f"**Subject:** {email_subject}")
+                    st.markdown("**Body Preview:**")
+                    st.text_area("", value=email_body[:1000] + "..." if len(email_body) > 1000 else email_body, height=200, disabled=True)
+            else:
+                st.warning("Please enter your email address first!")
         
         # Additional options
         st.markdown("### 🔧 More Options")
@@ -1146,7 +1407,7 @@ def show_schedule_step():
     <div class="progress-bar">
         <div class="progress-fill" style="width: 100%"></div>
     </div>
-    <p style="text-align: center; color: #667eea; font-weight: 600;">🎉 Schedule Complete!</p>
+    <p class="progress-text">🎉 Schedule Complete!</p>
     """, unsafe_allow_html=True)
     
     # Success message
@@ -1164,16 +1425,11 @@ def show_schedule_step():
     
     # Social proof
     st.markdown("""
-    <div style="text-align: center; margin-top: 3rem; padding: 2rem; background: #f8f9ff; border-radius: 15px;">
-        <p style="font-size: 1.1rem; color: #667eea; margin-bottom: 1rem;">
-            <strong>Join 10,000+ students who've improved their grades with StudyFlow!</strong>
-        </p>
-        <p style="color: #666;">
-            "Finally, a schedule app that doesn't make me feel guilty about checking Instagram!" - Sarah, Sophomore
-        </p>
-        <p style="color: #666;">
-            "The PDF export is perfect for printing and putting on my dorm wall." - Mike, Junior
-        </p>
+    <div class="social-proof">
+        <h4>Join 10,000+ students who've improved their grades with StudyFlow!</h4>
+        <p>"Finally, a schedule app that doesn't make me feel guilty about checking Instagram!" - Sarah, Sophomore</p>
+        <p>"The dark theme is perfect for late-night study sessions." - Mike, Junior</p>
+        <p>"I love that I can just enter my email at the end - no commitment until I'm ready!" - Alex, Senior</p>
     </div>
     """, unsafe_allow_html=True)
 
